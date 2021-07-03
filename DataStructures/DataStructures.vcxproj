@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DataStructures\Array.h" />
     <ClInclude Include="DataStructures\List.h" />
     <ClInclude Include="DataStructures\LStack.h" />
     <ClInclude Include="DataStructures\Stack.h" />

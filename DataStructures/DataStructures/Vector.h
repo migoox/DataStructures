@@ -164,18 +164,18 @@ namespace DataStructures
 		using Iterator = typename VectorIterator<Vector<DataType>>;
 		using ConstIterator = typename ConstVectorIterator<Vector<DataType>>;
 	private:
-		size_t m_sSize = 0;
-		size_t m_sCapacity = 0;
+		size_t m_Size = 0;
+		size_t m_Capacity = 0;
 
-		DataType* m_tData = nullptr;
+		DataType* m_Data = nullptr;
 	private:
 
 		void ReAlloc(size_t newCapacity)
 		{
 			// call destructors in this case
-			if (m_sSize > newCapacity)
+			if (m_Size > newCapacity)
 			{
-				size_t length = m_sSize - newCapacity;
+				size_t length = m_Size - newCapacity;
 				for (size_t i = 0; i < length; i++)
 					PopBack();
 			}
@@ -185,21 +185,21 @@ namespace DataStructures
 
 			// calling move constractor for each element of newBlock
 			// if move is not defined, simple copy will be called
-			for (size_t i = 0; i < m_sSize; i++)
-				new (&newBlock[i]) DataType(std::move(m_tData[i]));
+			for (size_t i = 0; i < m_Size; i++)
+				new (&newBlock[i]) DataType(std::move(m_Data[i]));
 
 			// destructing all of the elements from previous scope of memory
-			for (size_t i = 0; i < m_sSize; i++)
-				m_tData[i].~T();
+			for (size_t i = 0; i < m_Size; i++)
+				m_Data[i].~T();
 			
 			// dealocating old scope of memory
-			::operator delete(m_tData, m_sCapacity * sizeof(DataType));
+			::operator delete(m_Data, m_Capacity * sizeof(DataType));
 
 			// saving new capacity
-			m_sCapacity = newCapacity;
+			m_Capacity = newCapacity;
 
 			// pointing to know block of data
-			m_tData = newBlock;
+			m_Data = newBlock;
 		}
 
 	public:
@@ -217,28 +217,28 @@ namespace DataStructures
 		Vector(const Vector& other) // copy constructor
 		{
 			// allocating enough memory to copy all of the data (capacity is described)
-			ReAlloc(other.m_sSize);
+			ReAlloc(other.m_Size);
 
 			// saving size
-			m_sSize = other.m_sSize;
+			m_Size = other.m_Size;
 
 			// copying
-			for (size_t i = 0; i < m_sSize; i++)
-				new (&m_tData[i]) DataType(other.m_tData[i]);
+			for (size_t i = 0; i < m_Size; i++)
+				new (&m_Data[i]) DataType(other.m_Data[i]);
 		}
 
 		// move constructor
 		Vector(Vector&& other) noexcept  // move constructor
 		{
 			// allocating enough memory to move all of the data (capacity is described)
-			ReAlloc(other.m_sSize);
+			ReAlloc(other.m_Size);
 
 			// saving size
-			m_sSize = other.m_sSize;
+			m_Size = other.m_Size;
 
 			// moving
-			for (size_t i = 0; i < m_sSize; i++)
-				new (&m_tData[i]) DataType(std::move(other.m_tData[i]));
+			for (size_t i = 0; i < m_Size; i++)
+				new (&m_Data[i]) DataType(std::move(other.m_Data[i]));
 		}
 
 		// destructor
@@ -248,7 +248,7 @@ namespace DataStructures
 			Clear(); 
 			
 			// dealocating memory
-			::operator delete(m_tData, m_sCapacity * sizeof(T));
+			::operator delete(m_Data, m_Capacity * sizeof(T));
 		}
 
 		/* Functionality */
@@ -256,31 +256,31 @@ namespace DataStructures
 		void Clear()
 		{
 			// calling destructors but without dealocating, capacity stays the same
-			for (size_t i = 0; i < m_sSize; i++)
-				m_tData[i].~DataType();
+			for (size_t i = 0; i < m_Size; i++)
+				m_Data[i].~DataType();
 
-			m_sSize = 0;
+			m_Size = 0;
 		}
 
 		void ShrinkToFit()
 		{
-			ReAlloc(m_sSize);	
+			ReAlloc(m_Size);	
 		}
 
 		void Resize(size_t size)
 		{
-			if (size == m_sSize)
+			if (size == m_Size)
 			{
 				return;
 			}
-			else if(size > m_sCapacity)
+			else if(size > m_Capacity)
 			{
 				ReAlloc(size);
 			}
-			for (size_t i = m_sSize; i < size; i++)
-				new (&m_tData[i]) DataType();
+			for (size_t i = m_Size; i < size; i++)
+				new (&m_Data[i]) DataType();
 
-			m_sSize = size;
+			m_Size = size;
 		}
 
 		void Reserve(size_t newCapacity)
@@ -290,44 +290,44 @@ namespace DataStructures
 
 		void PushBack(const DataType& element)
 		{
-			if (m_sSize + 1 >= m_sCapacity)
+			if (m_Size + 1 >= m_Capacity)
 			{
-				ReAlloc(m_sSize + m_sSize / 2);
+				ReAlloc(m_Size + m_Size / 2);
 			}
 
 			// use a copy constructor of DataType and copy element
-			new (&m_tData[m_sSize]) DataType(element);
+			new (&m_Data[m_Size]) DataType(element);
 
-			m_sSize++;
+			m_Size++;
 		}
 
 		void PushBack(DataType&& element)
 		{
 			// if there is lack of place in current scope allocate a new wider one 
-			if (m_sSize + 1 > m_sCapacity)
-				ReAlloc(m_sSize + m_sSize / 2);
+			if (m_Size + 1 > m_Capacity)
+				ReAlloc(m_Size + m_Size / 2);
 
 			// use a move constructor of DataType and copy element
-			new (&m_tData[m_sSize]) DataType(std::move(element));
+			new (&m_Data[m_Size]) DataType(std::move(element));
 
-			m_sSize++;
+			m_Size++;
 		}
 
 		template <typename ...Args>
 		DataType& EmplaceBack(Args&&... args)
 		{
 			// if there is lack of place in current scope allocate a new wider one 
-			if (m_sSize + 1 > m_sCapacity)
-				ReAlloc(m_sSize + m_sSize / 2);
+			if (m_Size + 1 > m_Capacity)
+				ReAlloc(m_Size + m_Size / 2);
 
 			// put forward given arguments to constructor of DataType 
-			new(&m_tData[m_sSize]) DataType(std::forward<Args>(args)...);
-			return m_tData[m_sSize++];
+			new(&m_Data[m_Size]) DataType(std::forward<Args>(args)...);
+			return m_Data[m_Size++];
 		}
 
 		void PopBack()
 		{
-			m_tData[--m_sSize].~T();
+			m_Data[--m_Size].~T();
 		}
 
 		void Swap(Vector<DataType>& other)
@@ -350,7 +350,7 @@ namespace DataStructures
 				current++;
 			}
 
-			m_sSize--;
+			m_Size--;
 		}
 
 		// first inclusive and last exclusive
@@ -372,7 +372,7 @@ namespace DataStructures
 				current++;
 			}
 
-			m_sSize -= count;
+			m_Size -= count;
 		}
 
 		void EraseAt(size_t index)
@@ -393,20 +393,20 @@ namespace DataStructures
 			size_t whereIndex = where - Begin();
 
 			// reallocate memory in case it's needed
-			if (m_sSize + count >= m_sCapacity)
+			if (m_Size + count >= m_Capacity)
 			{
-				if (m_sSize + m_sSize / 2 < m_sSize + count)
-					ReAlloc(m_sSize + count);
+				if (m_Size + m_Size / 2 < m_Size + count)
+					ReAlloc(m_Size + count);
 				else
-					ReAlloc(m_sSize + m_sSize / 2);
+					ReAlloc(m_Size + m_Size / 2);
 
 				//reassign where pointer
-				where = &m_tData[whereIndex];
+				where = &m_Data[whereIndex];
 			}
 
 			// call default constructors at the new last elements
 			for (size_t i = 0; i < count; i++)
-				new (&m_tData[m_sSize + i]) DataType();
+				new (&m_Data[m_Size + i]) DataType();
 
 			// move elements using move assignment
 			for (Iterator bottomIt = End() - 1, topIt = End() + count - 1;
@@ -418,10 +418,10 @@ namespace DataStructures
 
 			// finally assign new value to prepared place
 			for (size_t i = 0; i < count; i++)
-				new (&m_tData[whereIndex + i]) DataType(var);
+				new (&m_Data[whereIndex + i]) DataType(var);
 
 			// increase the size by one
-			m_sSize += count;
+			m_Size += count;
 		}
 
 		void Insert(Iterator where, DataType&& var, int count = 1)
@@ -432,20 +432,20 @@ namespace DataStructures
 			size_t whereIndex = where - Begin();
 
 			// reallocate memory in case it's needed
-			if (m_sSize + count >= m_sCapacity)
+			if (m_Size + count >= m_Capacity)
 			{
-				if (m_sSize + m_sSize / 2 < m_sSize + count)
-					ReAlloc(m_sSize + count);
+				if (m_Size + m_Size / 2 < m_Size + count)
+					ReAlloc(m_Size + count);
 				else
-					ReAlloc(m_sSize + m_sSize / 2);
+					ReAlloc(m_Size + m_Size / 2);
 
 				//reassign where pointer
-				where = &m_tData[whereIndex];
+				where = &m_Data[whereIndex];
 			}
 
 			// call default constructors at the new last elements
 			for (size_t i = 0; i < count; i++)
-				new (&m_tData[m_sSize + i]) DataType();
+				new (&m_Data[m_Size + i]) DataType();
 
 			// move elements using move assignment
 			for (Iterator bottomIt = end() - 1, topIt = end() + count - 1;
@@ -457,10 +457,10 @@ namespace DataStructures
 
 			// finally assign new value to prepared place
 			for (size_t i = 0; i < count; i++)
-				new (&m_tData[whereIndex + i]) DataType(std::move(var));
+				new (&m_Data[whereIndex + i]) DataType(std::move(var));
 
 			// increase the size by one
-			m_sSize += count;
+			m_Size += count;
 		}
 
 		void InsertAt(size_t index, const DataType& var, int count = 1)
@@ -482,18 +482,18 @@ namespace DataStructures
 			size_t whereIndex = where - Begin();
 
 			// if there is lack of place in current scope allocate a new wider one 
-			if (m_sSize + 1 > m_sCapacity)
+			if (m_Size + 1 > m_Capacity)
 			{
-				ReAlloc(m_sSize + m_sSize / 2);
+				ReAlloc(m_Size + m_Size / 2);
 
 				//reassign where pointer
-				where = &m_tData[whereIndex];
+				where = &m_Data[whereIndex];
 			}
 
 			if (where != End())
 			{
 				// call default constructors at the new last elements
-				new (&m_tData[m_sSize]) DataType(std::move(*(End() - 1)));
+				new (&m_Data[m_Size]) DataType(std::move(*(End() - 1)));
 
 				// move elements using move assignment
 				for (Iterator bottomIt = End() - 2, topIt = End() - 1;
@@ -505,9 +505,9 @@ namespace DataStructures
 			}
 
 			// finally assign new value to prepared place
-			new(&m_tData[whereIndex]) DataType(std::forward<Args>(args)...);
+			new(&m_Data[whereIndex]) DataType(std::forward<Args>(args)...);
 
-			return m_tData[m_sSize++];
+			return m_Data[m_Size++];
 		}
 
 		/* Operators */
@@ -517,19 +517,19 @@ namespace DataStructures
 		{
 			if (*this != other)
 			{
-				if (m_sSize != other.m_sSize)
-					ReAlloc(other.m_sSize);
+				if (m_Size != other.m_Size)
+					ReAlloc(other.m_Size);
 
-				for (size_t i = 0; i < m_sSize; i++)
+				for (size_t i = 0; i < m_Size; i++)
 				{
-					m_tData[i].~DataType();
+					m_Data[i].~DataType();
 				}
 
-				m_sSize = other.m_sSize;
+				m_Size = other.m_Size;
 
-				for (size_t i = 0; i < m_sSize; i++)
+				for (size_t i = 0; i < m_Size; i++)
 				{
-					new (&m_tData[i]) DataType(other.m_tData[i]);
+					new (&m_Data[i]) DataType(other.m_Data[i]);
 				}
 			}
 			return *this;
@@ -540,19 +540,19 @@ namespace DataStructures
 		{
 			if (*this != other)
 			{
-				if (m_sSize != other.m_sSize)
-					ReAlloc(other.m_sSize);
+				if (m_Size != other.m_Size)
+					ReAlloc(other.m_Size);
 
-				for (size_t i = 0; i < m_sSize; i++)
+				for (size_t i = 0; i < m_Size; i++)
 				{
-					m_tData[i].~DataType();
+					m_Data[i].~DataType();
 				}
 
-				m_sSize = other.m_sSize;
+				m_Size = other.m_Size;
 
-				for (size_t i = 0; i < m_sSize; i++)
+				for (size_t i = 0; i < m_Size; i++)
 				{
-					new (&m_tData[i]) DataType(std::move(other.m_tData[i]));
+					new (&m_Data[i]) DataType(std::move(other.m_Data[i]));
 				}
 			}
 			return *this;
@@ -560,11 +560,11 @@ namespace DataStructures
 
 		bool operator==(const Vector& other)
 		{
-			if (m_sSize == other.m_sSize)
+			if (m_Size == other.m_Size)
 			{
-				for (size_t i = 0; i < m_sSize; i++)
+				for (size_t i = 0; i < m_Size; i++)
 				{
-					if (m_tData[i] != other.m_tData[i])
+					if (m_Data[i] != other.m_Data[i])
 						return false;
 				}
 				return true;
@@ -580,44 +580,44 @@ namespace DataStructures
 		/* Getters & Setters */
 
 		// getter/setter - getter available when vector is const (second line)
-		DataType& Front() { return m_tData[0]; }
-		const DataType& Front() const { return m_tData[0]; }
+		DataType& Front() { return m_Data[0]; }
+		const DataType& Front() const { return m_Data[0]; }
 
 		// getter/setter - getter available when vector is const (second line)
-		DataType& Back() { return m_tData[m_sSize - 1]; }
-		const DataType& Back() const { return m_tData[m_sSize - 1]; }
+		DataType& Back() { return m_Data[m_Size - 1]; }
+		const DataType& Back() const { return m_Data[m_Size - 1]; }
 
 		// getter/setter - getter available when vector is const (second line)
-		DataType& operator[](size_t index) { return m_tData[index]; }
-		const DataType& operator[](size_t index) const { return m_tData[index]; } 
+		DataType& operator[](size_t index) { return m_Data[index]; }
+		const DataType& operator[](size_t index) const { return m_Data[index]; } 
 
 		// getter/setter - getter available when vector is const (second line)
-		DataType* Data() { return m_tData; }
-		const DataType* Data() const { return m_tData; }
+		DataType* Data() { return m_Data; }
+		const DataType* Data() const { return m_Data; }
 
 		// getter (available when vector is const)
-		size_t Size() const { return m_sSize; }
+		size_t Size() const { return m_Size; }
 
 		// getter (available when vector is const)
-		size_t Capacity() const { return m_sCapacity; } 
+		size_t Capacity() const { return m_Capacity; } 
 
 		// getter (available when vector is const)
-		bool IsEmpty() const { return m_sSize == 0; } 
+		bool IsEmpty() const { return m_Size == 0; } 
 
 		// for ranged loops
 		
 		// getting begin iterator (has to begin with small letter)
-		Iterator begin() { return Iterator(m_tData); } 
+		Iterator begin() { return Iterator(m_Data); } 
 
 		// getting end iterator (has to begin with small letter)
-		Iterator end() { return Iterator(m_tData + m_sSize); } 
+		Iterator end() { return Iterator(m_Data + m_Size); } 
 
 		// default 
 		
 		// getting begin iterator (has to begin with small letter)
-		Iterator Begin() { return Iterator(m_tData); }
+		Iterator Begin() { return Iterator(m_Data); }
 
 		// getting end iterator (has to begin with small letter)
-		Iterator End() { return Iterator(m_tData + m_sSize); }
+		Iterator End() { return Iterator(m_Data + m_Size); }
 	};
 }
