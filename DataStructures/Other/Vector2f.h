@@ -13,6 +13,12 @@ namespace Maths
 			dynamicArray = new int[5];
 		}
 
+		Vector2f(float value)
+			: x(value), y(value)
+		{
+			dynamicArray = new int[5];
+		}
+
 		Vector2f(float x, float y) 
 			: x(x), y(y) 
 		{ 
@@ -22,7 +28,7 @@ namespace Maths
 		Vector2f(const Vector2f& other) // copy constructor
 			: x(other.x), y(other.y)
 		{
-			std::cout << "COPY\n";
+			std::cout << "CONSTRUCTOR: COPY\n";
 			dynamicArray = new int[5];
 
 			for (size_t i = 0; i < 5; i++)
@@ -41,7 +47,7 @@ namespace Maths
 
 		~Vector2f() // destructor
 		{
-			std::cout << "DESTROY\n";
+			std::cout << "DESTROY x=" << x << "\n";
 			delete[] dynamicArray;
 		}
 

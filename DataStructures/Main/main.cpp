@@ -12,13 +12,33 @@ using DataStructures::List;
 using DataStructures::Vector;
 using Maths::Vector2f;
 
+static void PrintVector(const Vector<Vector2f>& vec)
+{
+	std::cout << "========PRINTING VECTOR: =======\n";
+	for (size_t i = 0; i < vec.Size(); i++)
+	{
+		const Vector2f& it = vec[i];
+
+		std::cout << "["<< i << "]: "<< it.x << ", " << it.y << std::endl;
+	}
+	std::cout << "================================\n";
+}
+
+static void PrintVector(const Vector<std::string>& vec)
+{
+	std::cout << "========PRINTING VECTOR: =======\n";
+	for (size_t i = 0; i < vec.Size(); i++)
+	{
+		const std::string& it = vec[i];
+
+		std::cout << "[" << i << "]: " << it << std::endl;
+	}
+	std::cout << "================================\n";
+
+}
+
 int main()
 {
-	Vector<int> vec;
-
-	vec.PushBack(66);
-
-
 
 	return 0;
 }
