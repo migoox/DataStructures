@@ -16,6 +16,7 @@ int main()
 {
 	Vector<int> vec;
 
+	vec.PushBack(66);
 
 
 
