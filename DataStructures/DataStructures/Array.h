@@ -13,68 +13,87 @@ namespace DataStructures
 
 	private:
 		ConstPointerType m_Ptr;
-		size_t m_IdOffset;
 
 	public:
 		ArrayConstIterator() noexcept
-			: m_Ptr(nullptr), m_IdOffset(0)
+			: m_Ptr(nullptr)
 		{
 		}
 
 		explicit ArrayConstIterator(ConstPointerType ptr, size_t id_off = 0) noexcept
-			: m_Ptr(ptr), m_IdOffset(id_off)
+			: m_Ptr(ptr)
 		{
 		}
 
 		ArrayConstIterator(const ArrayConstIterator& other) noexcept
-			: m_Ptr(other.m_Ptr), m_IdOffset(other.m_IdOffset)
+			: m_Ptr(other.m_Ptr)
 		{
 		}
 
 		ConstPointerType operator->() const
 		{
-			return m_Ptr + m_IdOffset;
+			return m_Ptr;
 		}
 
 		ConstReferenceType operator*() const
 		{
-			return *(m_Ptr + m_IdOffset);
+			return *(m_Ptr);
 		}
 
 		ConstReferenceType operator[](size_t index) 
 		{
-			return *(m_Ptr + m_IdOffset + index);
+			return *(m_Ptr + index);
 		}
 
 		ArrayConstIterator operator++() 
 		{
-			m_IdOffset++;
+			m_Ptr++;
 			return *this;
 		}
 
 		ArrayConstIterator operator++(int)
 		{
 			ArrayConstIterator temp = *this;
-			m_IdOffset++;
+			m_Ptr++;
 			return temp;
 		}
 
 		ArrayConstIterator operator--() 
 		{
-			m_IdOffset--;
+			m_Ptr--;
 			return *this;
 		}
 
 		ArrayConstIterator operator--(int) 
 		{
 			ArrayConstIterator temp = *this;
-			m_IdOffset--;
+			m_Ptr--;
 			return temp;
 		}
-		ArrayConstIterator operator+(int right) 
+
+		ArrayConstIterator operator+=(size_t right)
+		{
+			m_Ptr += right;
+			return *this;
+		}
+
+		ArrayConstIterator operator-=(size_t right)
+		{
+			m_Ptr -= right;
+			return *this;
+		}
+
+		ArrayConstIterator operator+(size_t right) 
 		{
 			ArrayConstIterator temp = *this;
 			temp.m_Ptr = temp.m_Ptr + right;
+			return temp;
+		}
+
+		ArrayConstIterator operator-(size_t right)
+		{
+			ArrayConstIterator temp = *this;
+			temp.m_Ptr = temp.m_Ptr - right;
 			return temp;
 		}
 
@@ -83,11 +102,31 @@ namespace DataStructures
 			return m_Ptr - right.m_Ptr;
 		}
 
-		ArrayConstIterator operator-(int right) 
+		ArrayConstIterator& operator=(const ArrayConstIterator& other)
 		{
-			ArrayConstIterator temp = *this;
-			temp.m_Ptr = temp.m_Ptr - right;
-			return temp;
+			if (m_Ptr != other.m_Ptr)
+			{
+				m_Ptr = other.m_Ptr;
+			}
+			return *this;
+		}
+
+		ArrayConstIterator& operator=(ConstPointerType ptr)
+		{
+			if (m_Ptr != ptr)
+			{
+				m_Ptr = ptr;
+			}
+			return *this;
+		}
+
+		ArrayConstIterator& operator=(PointerType ptr)
+		{
+			if (m_Ptr != ptr)
+			{
+				m_Ptr = ptr;
+			}
+			return *this;
 		}
 
 		bool operator==(const ArrayConstIterator& other) 
@@ -100,6 +139,15 @@ namespace DataStructures
 			return !(m_Ptr == other.m_Ptr);
 		}
 
+		bool operator==(const ArrayConstIterator& other)
+		{
+			return m_Ptr == other.m_Ptr;
+		}
+
+		bool operator!=(const ArrayConstIterator& other)
+		{
+			return !(m_Ptr == other.m_Ptr);
+		}
 	};
 
 	template <typename MyArray>
@@ -123,12 +171,68 @@ namespace DataStructures
 
 		ReferenceType operator[](size_t index)
 		{
-			return const_cast<ReferenceType>(MyBase::operator[]());
+			return const_cast<ReferenceType>(MyBase::operator[](index));
 		}
 
 		PointerType operator->()
 		{
 			return const_cast<ReferenceType>(MyBase::operator->());
+		}
+
+		ArrayIterator operator++()
+		{
+			MyBase::operator++();
+			return *this;
+		}
+
+		ArrayIterator operator++(int)
+		{
+			ArrayConstIterator temp = *this;
+			MyBase::operator++();
+			return temp;
+		}
+
+		ArrayIterator operator--()
+		{
+			MyBase::operator--();
+			return *this;
+		}
+
+		ArrayIterator operator--(int)
+		{
+			ArrayConstIterator temp = *this;
+			MyBase::operator--();
+			return temp;
+		}
+
+		ArrayIterator operator+=(size_t right)
+		{
+			MyBase::operator+=(right);
+			return *this;
+		}
+
+		ArrayIterator operator-=(size_t right)
+		{
+			MyBase::operator-=(right);
+			return *this;
+		}
+
+		ArrayIterator operator+(size_t right)
+		{
+			MyBase::operator+(right);
+			return *this;
+		}
+
+		ArrayIterator operator-(size_t right)
+		{
+			MyBase::operator-(right);
+			return *this;
+		}
+
+		ArrayIterator& operator=(PointerType ptr)
+		{
+			MyBase::operator=(ptr);
+			return *this;
 		}
 	};
 
@@ -222,10 +326,10 @@ namespace DataStructures
 		// getter (available when vector is const)
 		bool IsEmpty() const { return _Size == 0; }
 
-		Iterator begin() { return Iterator(m_Data, 0); }
-		ConstIterator begin() const { return ConstIterator(m_Data, 0); }
+		Iterator begin() { return Iterator(m_Data); }
+		ConstIterator begin() const { return ConstIterator(m_Data); }
 
-		Iterator end() { return Iterator(m_Data, _Size); }
-		ConstIterator end() const { return ConstIterator(m_Data, _Size); }
+		Iterator end() { return Iterator(m_Data + _Size); }
+		ConstIterator end() const { return ConstIterator(m_Data + _Size); }
 	};
 }

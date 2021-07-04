@@ -54,18 +54,5 @@ int main()
 	Array<int, 6> arr = { 1,2,3,4,5,6 };
 	const Array<int, 6> carr = { 11,12,13,14,15,16 };
 
-	std::array<int, 6> sarr = { 1,2,3,4,5,6 };
-	const std::array<int, 6> scarr = { 11,12,13,14,15,16 };
-
-
-	auto beg = arr.begin();
-	*beg = 5;
-	std::cout << *beg << std::endl;;
-
-	auto cbeg = carr.begin();
-
-	cbeg++;
-	std::cout << *cbeg << std::endl;
-
 	return 0;
 }
