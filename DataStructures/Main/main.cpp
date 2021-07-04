@@ -40,18 +40,32 @@ static void PrintVector(const Vector<std::string>& vec)
 
 }
 
-void test(const std::array<int, 6>::const_iterator& it)
+void Function(const Array<int, 6>& carr)
 {
-	
+	std::cout << *carr.begin() << std::endl;
 }
 
+void Function(const std::array<int, 6>& carr)
+{
+	std::cout << *carr.begin() << std::endl;
+}
 int main()
 {
-	std::array<int, 5> arr1 = { 1,2,3,4,5 };
+	Array<int, 6> arr = { 1,2,3,4,5,6 };
+	const Array<int, 6> carr = { 11,12,13,14,15,16 };
 
-	std::array<int, 5>::const_iterator it = arr1.begin();
+	std::array<int, 6> sarr = { 1,2,3,4,5,6 };
+	const std::array<int, 6> scarr = { 11,12,13,14,15,16 };
 
-	std::cout << *it << std::endl;
+
+	auto beg = arr.begin();
+	*beg = 5;
+	std::cout << *beg << std::endl;;
+
+	auto cbeg = carr.begin();
+
+	cbeg++;
+	std::cout << *cbeg << std::endl;
 
 	return 0;
 }
