@@ -54,5 +54,14 @@ int main()
 	Array<int, 6> arr = { 1,2,3,4,5,6 };
 	const Array<int, 6> carr = { 11,12,13,14,15,16 };
 
+
+	for (Array<int, 6>::ReversedIterator it = arr.rbegin(); 
+		it != arr.rend(); it++)
+	{
+		std::cout << *it << std::endl;
+	}
+
+	std::cout << arr.cend() - arr.begin() << std::endl;
+
 	return 0;
 }

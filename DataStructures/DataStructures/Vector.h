@@ -19,13 +19,11 @@ namespace DataStructures
 		ConstVectorIterator(PointerType ptr)
 			: m_Ptr(ptr)
 		{
-
 		}
 
 		ConstVectorIterator(const ConstVectorIterator& it)
 			: m_Ptr(it.m_Ptr)
 		{
-
 		}
 
 		ConstReferenceType operator*() const
