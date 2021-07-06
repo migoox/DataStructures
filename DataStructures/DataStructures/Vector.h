@@ -3,93 +3,116 @@
 namespace DataStructures
 {
 	template <typename MyVector>
-	class ConstVectorIterator
+	class VectorConstIterator
 	{
 	public:
 		using DataType = typename MyVector::DataType;
 		using ReferenceType = DataType&;
-		using ConstReferenceType = const ReferenceType;
+		using ConstReferenceType = const DataType&;
 		using PointerType = DataType*;
-		using ConstPointerType = const PointerType;
+		using ConstPointerType = const DataType*;
 
 	private:
-		PointerType m_Ptr;
+		ConstPointerType m_Ptr;
 
 	public:
-		ConstVectorIterator(PointerType ptr)
+		VectorConstIterator() noexcept
+			: m_Ptr(nullptr)
+		{
+		}
+
+		explicit VectorConstIterator(ConstPointerType ptr) noexcept
 			: m_Ptr(ptr)
 		{
 		}
 
-		ConstVectorIterator(const ConstVectorIterator& it)
-			: m_Ptr(it.m_Ptr)
+		VectorConstIterator(const VectorConstIterator& other) noexcept
+			: m_Ptr(other.m_Ptr)
 		{
-		}
-
-		ConstReferenceType operator*() const
-		{
-			return *m_Ptr;
-		}
-
-		ConstReferenceType operator[](size_t index) const
-		{
-			return *(m_Ptr + index);
 		}
 
 		ConstPointerType operator->() const
 		{
 			return m_Ptr;
 		}
-	};
 
-	template <typename MyVector>
-	class VectorIterator
-	{
-	public:
-		using DataType = typename MyVector::DataType;
-		using ReferenceType = DataType&;
-		using PointerType = DataType*;
-
-	private:
-		PointerType m_Ptr;
-
-	public:
-		VectorIterator(PointerType ptr)
-			: m_Ptr(ptr)
-		{ 
-		
-		}
-
-		VectorIterator(const VectorIterator& it)
-			: m_Ptr(it.m_Ptr)
+		ConstReferenceType operator*() const
 		{
+			return *(m_Ptr);
 		}
 
-		PointerType operator->() const
-		{
-			return m_Ptr;
-		}
-
-		ReferenceType operator*() const
-		{
-			return *m_Ptr;
-		}
-
-		ReferenceType operator[](int index) const 
+		ConstReferenceType operator[](size_t index)
 		{
 			return *(m_Ptr + index);
 		}
 
-		VectorIterator& operator=(const VectorIterator& it)
+		VectorConstIterator operator++()
 		{
-			if (*this != it)
+			m_Ptr++;
+			return *this;
+		}
+
+		VectorConstIterator operator++(int)
+		{
+			VectorConstIterator temp = *this;
+			m_Ptr++;
+			return temp;
+		}
+
+		VectorConstIterator operator--()
+		{
+			m_Ptr--;
+			return *this;
+		}
+
+		VectorConstIterator operator--(int)
+		{
+			VectorConstIterator temp = *this;
+			m_Ptr--;
+			return temp;
+		}
+
+		VectorConstIterator operator+=(size_t right)
+		{
+			m_Ptr += right;
+			return *this;
+		}
+
+		VectorConstIterator operator-=(size_t right)
+		{
+			m_Ptr -= right;
+			return *this;
+		}
+
+		VectorConstIterator operator+(size_t right)
+		{
+			VectorConstIterator temp = *this;
+			temp.m_Ptr = temp.m_Ptr + right;
+			return temp;
+		}
+
+		VectorConstIterator operator-(size_t right)
+		{
+			VectorConstIterator temp = *this;
+			temp.m_Ptr = temp.m_Ptr - right;
+			return temp;
+		}
+
+		size_t operator-(const VectorConstIterator& right)
+		{
+			return m_Ptr - right.m_Ptr;
+		}
+
+		VectorConstIterator& operator=(const VectorConstIterator& other)
+		{
+			if (m_Ptr != other.m_Ptr)
 			{
-				m_Ptr = it.m_Ptr;
+				m_Ptr = other.m_Ptr;
 			}
 			return *this;
 		}
 
-		VectorIterator operator=(PointerType ptr)
+		VectorConstIterator& operator=(ConstPointerType ptr)
 		{
 			if (m_Ptr != ptr)
 			{
@@ -98,59 +121,354 @@ namespace DataStructures
 			return *this;
 		}
 
-		VectorIterator operator++() 
-		{ 
-			++m_Ptr;
-			return *this; 
+		VectorConstIterator& operator=(PointerType ptr)
+		{
+			if (m_Ptr != ptr)
+			{
+				m_Ptr = ptr;
+			}
+			return *this;
 		}
 
-		VectorIterator operator++(int) 
-		{ 
+		bool operator==(const VectorConstIterator& other)
+		{
+			return m_Ptr == other.m_Ptr;
+		}
+
+		bool operator!=(const VectorConstIterator& other)
+		{
+			return !(m_Ptr == other.m_Ptr);
+		}
+	};
+
+	template <typename MyVector>
+	class VectorIterator : public VectorConstIterator<MyVector>
+	{
+	public:
+		using MyBase = VectorConstIterator<MyVector>;
+
+		using DataType = typename MyVector::DataType;
+		using ReferenceType = DataType&;
+		using PointerType = DataType*;
+
+		using MyBase::MyBase;
+
+	public:
+
+		ReferenceType operator*()
+		{
+			return const_cast<ReferenceType>(MyBase::operator*());
+		}
+
+		ReferenceType operator[](size_t index)
+		{
+			return const_cast<ReferenceType>(MyBase::operator[](index));
+		}
+
+		PointerType operator->()
+		{
+			return const_cast<ReferenceType>(MyBase::operator->());
+		}
+
+		VectorIterator operator++()
+		{
+			MyBase::operator++();
+			return *this;
+		}
+
+		VectorIterator operator++(int)
+		{
 			VectorIterator temp = *this;
-			++m_Ptr;
+			MyBase::operator++();
 			return temp;
 		}
 
 		VectorIterator operator--()
 		{
-			--m_Ptr;
+			MyBase::operator--();
 			return *this;
 		}
 
 		VectorIterator operator--(int)
 		{
 			VectorIterator temp = *this;
-			--m_Ptr;
+			MyBase::operator--();
 			return temp;
 		}
 
-		friend VectorIterator operator+(const VectorIterator& left, int right)
+		VectorIterator operator+=(size_t right)
 		{
-			VectorIterator temp = left;
-			temp.m_Ptr = temp.m_Ptr + right;
+			MyBase::operator+=(right);
+			return *this;
+		}
+
+		VectorIterator operator-=(size_t right)
+		{
+			MyBase::operator-=(right);
+			return *this;
+		}
+
+		VectorIterator operator+(size_t right)
+		{
+			MyBase::operator+(right);
+			return *this;
+		}
+
+		VectorIterator operator-(size_t right)
+		{
+			MyBase::operator-(right);
+			return *this;
+		}
+
+		size_t operator-(const MyBase& right)
+		{
+			return MyBase::operator-(right);
+		}
+
+		size_t operator-(const VectorIterator& right)
+		{
+			return MyBase::operator-(right);
+		}
+
+		VectorIterator& operator=(PointerType ptr)
+		{
+			MyBase::operator=(ptr);
+			return *this;
+		}
+	};
+
+	template <typename MyVector>
+	class VectorConstReversedIterator
+	{
+	public:
+		using DataType = typename MyVector::DataType;
+		using ReferenceType = DataType&;
+		using ConstReferenceType = const DataType&;
+		using PointerType = DataType*;
+		using ConstPointerType = const DataType*;
+
+	private:
+		ConstPointerType m_Ptr;
+
+	public:
+		VectorConstReversedIterator() noexcept
+			: m_Ptr(nullptr)
+		{
+		}
+
+		explicit VectorConstReversedIterator(ConstPointerType ptr) noexcept
+			: m_Ptr(ptr)
+		{
+		}
+
+		VectorConstReversedIterator(const VectorConstReversedIterator& other) noexcept
+			: m_Ptr(other.m_Ptr)
+		{
+		}
+
+		ConstPointerType operator->() const
+		{
+			return m_Ptr;
+		}
+
+		ConstReferenceType operator*() const
+		{
+			return *(m_Ptr);
+		}
+
+		ConstReferenceType operator[](size_t index)
+		{
+			return *(m_Ptr + index);
+		}
+
+		VectorConstReversedIterator operator++()
+		{
+			m_Ptr--;
+			return *this;
+		}
+
+		VectorConstReversedIterator operator++(int)
+		{
+			VectorConstReversedIterator temp = *this;
+			m_Ptr--;
 			return temp;
 		}
 
-		friend VectorIterator operator-(const VectorIterator& left, int right)
+		VectorConstReversedIterator operator--()
 		{
-			VectorIterator temp = left;
+			m_Ptr++;
+			return *this;
+		}
+
+		VectorConstReversedIterator operator--(int)
+		{
+			VectorConstReversedIterator temp = *this;
+			m_Ptr++;
+			return temp;
+		}
+
+		VectorConstReversedIterator operator+=(size_t right)
+		{
+			m_Ptr -= right;
+			return *this;
+		}
+
+		VectorConstReversedIterator operator-=(size_t right)
+		{
+			m_Ptr += right;
+			return *this;
+		}
+
+		VectorConstReversedIterator operator+(size_t right)
+		{
+			VectorConstReversedIterator temp = *this;
 			temp.m_Ptr = temp.m_Ptr - right;
 			return temp;
 		}
 
-		friend size_t operator-(const VectorIterator& left, const VectorIterator& right)
+		VectorConstReversedIterator operator-(size_t right)
 		{
-			return left.m_Ptr - right.m_Ptr;
+			VectorConstReversedIterator temp = *this;
+			temp.m_Ptr = temp.m_Ptr + right;
+			return temp;
 		}
 
-		bool operator==(const VectorIterator& other) const
+		size_t operator-(const VectorConstReversedIterator& right)
+		{
+			return m_Ptr - right.m_Ptr;
+		}
+
+		VectorConstReversedIterator& operator=(const VectorConstReversedIterator& other)
+		{
+			if (m_Ptr != other.m_Ptr)
+			{
+				m_Ptr = other.m_Ptr;
+			}
+			return *this;
+		}
+
+		VectorConstReversedIterator& operator=(ConstPointerType ptr)
+		{
+			if (m_Ptr != ptr)
+			{
+				m_Ptr = ptr;
+			}
+			return *this;
+		}
+
+		VectorConstReversedIterator& operator=(PointerType ptr)
+		{
+			if (m_Ptr != ptr)
+			{
+				m_Ptr = ptr;
+			}
+			return *this;
+		}
+
+		bool operator==(const VectorConstReversedIterator& other)
 		{
 			return m_Ptr == other.m_Ptr;
 		}
 
-		bool operator!=(const VectorIterator& other) const
+		bool operator!=(const VectorConstReversedIterator& other)
 		{
 			return !(m_Ptr == other.m_Ptr);
+		}
+	};
+
+	template <typename MyVector>
+	class VectorReversedIterator : public VectorConstReversedIterator<MyVector>
+	{
+	public:
+		using MyBase = VectorConstReversedIterator<MyVector>;
+
+		using DataType = typename MyVector::DataType;
+		using ReferenceType = DataType&;
+		using PointerType = DataType*;
+
+		using MyBase::MyBase;
+
+	public:
+
+		ReferenceType operator*()
+		{
+			return const_cast<ReferenceType>(MyBase::operator*());
+		}
+
+		ReferenceType operator[](size_t index)
+		{
+			return const_cast<ReferenceType>(MyBase::operator[](index));
+		}
+
+		PointerType operator->()
+		{
+			return const_cast<ReferenceType>(MyBase::operator->());
+		}
+
+		VectorReversedIterator operator++()
+		{
+			MyBase::operator++();
+			return *this;
+		}
+
+		VectorReversedIterator operator++(int)
+		{
+			VectorReversedIterator temp = *this;
+			MyBase::operator++();
+			return temp;
+		}
+
+		VectorReversedIterator operator--()
+		{
+			MyBase::operator--();
+			return *this;
+		}
+
+		VectorReversedIterator operator--(int)
+		{
+			VectorReversedIterator temp = *this;
+			MyBase::operator--();
+			return temp;
+		}
+
+		VectorReversedIterator operator+=(size_t right)
+		{
+			MyBase::operator+=(right);
+			return *this;
+		}
+
+		VectorReversedIterator operator-=(size_t right)
+		{
+			MyBase::operator-=(right);
+			return *this;
+		}
+
+		VectorReversedIterator operator+(size_t right)
+		{
+			MyBase::operator+(right);
+			return *this;
+		}
+
+		VectorReversedIterator operator-(size_t right)
+		{
+			MyBase::operator-(right);
+			return *this;
+		}
+
+		size_t operator-(const MyBase& right)
+		{
+			return MyBase::operator-(right);
+		}
+
+		size_t operator-(const VectorReversedIterator& right)
+		{
+			return MyBase::operator-(right);
+		}
+
+		VectorReversedIterator& operator=(PointerType ptr)
+		{
+			MyBase::operator=(ptr);
+			return *this;
 		}
 	};
 
@@ -159,8 +477,13 @@ namespace DataStructures
 	{
 	public:
 		using DataType = T;
-		using Iterator = typename VectorIterator<Vector<DataType>>;
-		using ConstIterator = typename ConstVectorIterator<Vector<DataType>>;
+
+		using ConstIterator = VectorConstIterator<Vector<DataType>>;
+		using Iterator = VectorIterator<Vector<DataType>>;
+
+		using ConstReversedIterator = VectorConstReversedIterator<Vector<DataType>>;
+		using ReversedIterator = VectorReversedIterator<Vector<DataType>>;
+
 	private:
 		size_t m_Size = 0;
 		size_t m_Capacity = 0;
@@ -237,6 +560,24 @@ namespace DataStructures
 			// moving
 			for (size_t i = 0; i < m_Size; i++)
 				new (&m_Data[i]) DataType(std::move(other.m_Data[i]));
+		}
+
+		// initializer list constructor
+		Vector(std::initializer_list<DataType> list)
+		{
+			// allocating enough memory to move all of the data (capacity is described)
+			ReAlloc(list.size());
+
+			// saving size
+			m_Size = list.size();
+
+			// moving
+			int i = 0;
+			for (auto& it : list)
+			{
+				new (&m_Data[i]) DataType(std::move(it));
+				i++;
+			}
 		}
 
 		// destructor
@@ -342,7 +683,7 @@ namespace DataStructures
 
 			// moving elements to make vector contiguous
 			Iterator current = where;
-			for (Iterator it = where + 1; it != End(); it++)
+			for (Iterator it = where + 1; it != end(); it++)
 			{
 				*current = std::move(*it);
 				current++;
@@ -364,7 +705,7 @@ namespace DataStructures
 			
 			// moving elements to make vector contiguous
 			Iterator current = first;
-			for (Iterator it = last; it != End(); it++)
+			for (Iterator it = last; it != end(); it++)
 			{
 				*current = std::move(*it);
 				current++;
@@ -375,12 +716,12 @@ namespace DataStructures
 
 		void EraseAt(size_t index)
 		{
-			Erase(Begin() + index);
+			Erase(begin() + index);
 		}
 
 		void EraseAt(size_t index1, size_t index2)
 		{
-			Erase(Begin() + index1, Begin() + index2);
+			Erase(begin() + index1, begin() + index2);
 		}
 		
 		void Insert(Iterator where, const DataType& var, int count = 1)
@@ -388,7 +729,7 @@ namespace DataStructures
 			// find index of where iterator
 			// it's necessary, because after possible reallocation
 			// adress of where will be different
-			size_t whereIndex = where - Begin();
+			size_t whereIndex = where - begin();
 
 			// reallocate memory in case it's needed
 			if (m_Size + count >= m_Capacity)
@@ -407,7 +748,7 @@ namespace DataStructures
 				new (&m_Data[m_Size + i]) DataType();
 
 			// move elements using move assignment
-			for (Iterator bottomIt = End() - 1, topIt = End() + count - 1;
+			for (Iterator bottomIt = end() - 1, topIt = end() + count - 1;
 				bottomIt != where - 1;
 				bottomIt--, topIt--)
 			{
@@ -427,7 +768,7 @@ namespace DataStructures
 			// find index of where iterator
 			// it's necessary, because after possible reallocation
 			// adress of where will be different
-			size_t whereIndex = where - Begin();
+			size_t whereIndex = where - begin();
 
 			// reallocate memory in case it's needed
 			if (m_Size + count >= m_Capacity)
@@ -463,12 +804,12 @@ namespace DataStructures
 
 		void InsertAt(size_t index, const DataType& var, int count = 1)
 		{
-			Insert(Begin() + index, var, count);
+			Insert(begin() + index, var, count);
 		}
 
 		void InsertAt(size_t index, DataType&& var, int count = 1)
 		{
-			Insert(Begin() + index, std::move(var), count);
+			Insert(begin() + index, std::move(var), count);
 		}
 
 		template <typename ...Args>
@@ -477,7 +818,7 @@ namespace DataStructures
 			// find index of where iterator
 			// it's necessary, because after possible reallocation
 			// adress of where will be different
-			size_t whereIndex = where - Begin();
+			size_t whereIndex = where - begin();
 
 			// if there is lack of place in current scope allocate a new wider one 
 			if (m_Size + 1 > m_Capacity)
@@ -488,13 +829,13 @@ namespace DataStructures
 				where = &m_Data[whereIndex];
 			}
 
-			if (where != End())
+			if (where != end())
 			{
 				// call default constructors at the new last elements
-				new (&m_Data[m_Size]) DataType(std::move(*(End() - 1)));
+				new (&m_Data[m_Size]) DataType(std::move(*(end() - 1)));
 
 				// move elements using move assignment
-				for (Iterator bottomIt = End() - 2, topIt = End() - 1;
+				for (Iterator bottomIt = end() - 2, topIt = end() - 1;
 					topIt != where;
 					bottomIt--, topIt--)
 				{
@@ -602,20 +943,24 @@ namespace DataStructures
 		// getter (available when vector is const)
 		bool IsEmpty() const { return m_Size == 0; } 
 
-		// for ranged loops
-		
-		// getting begin iterator (has to begin with small letter)
-		Iterator begin() { return Iterator(m_Data); } 
+		// default iterators
+		Iterator begin() { return Iterator(m_Data); }
+		ConstIterator begin() const { return ConstIterator(m_Data); }
 
-		// getting end iterator (has to begin with small letter)
-		Iterator end() { return Iterator(m_Data + m_Size); } 
+		Iterator end() { return Iterator(m_Data + m_Size); }
+		ConstIterator end() const { return ConstIterator(m_Data + m_Size); }
 
-		// default 
-		
-		// getting begin iterator (has to begin with small letter)
-		Iterator Begin() { return Iterator(m_Data); }
+		// reversed iterators
+		ReversedIterator rbegin() { return ReversedIterator(m_Data + m_Size - 1); }
+		ConstReversedIterator rbegin() const { return ConstReversedIterator(m_Data + m_Size - 1); }
 
-		// getting end iterator (has to begin with small letter)
-		Iterator End() { return Iterator(m_Data + m_Size); }
+		ReversedIterator rend() { return ReversedIterator(m_Data - 1); }
+		ConstReversedIterator rend() const { return ConstReversedIterator(m_Data - 1); }
+
+		// const iterators
+		ConstIterator cbegin() const { return ConstIterator(m_Data); }
+		ConstIterator cend() const { return ConstIterator(m_Data + m_Size); }
+		ConstReversedIterator crbegin() const { return ConstReversedIterator(m_Data + m_Size - 1); }
+		ConstReversedIterator crend() const { return ConstReversedIterator(m_Data - 1); }
 	};
 }
