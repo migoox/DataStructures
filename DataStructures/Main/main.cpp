@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <list>
 #include <array>
 #include "../DataStructures/List.h"
 #include "../DataStructures/LStack.h"
@@ -40,23 +41,40 @@ static void PrintVector(const Vector<std::string>& vec)
 
 }
 
-void Function(const Array<int, 6>& carr)
+static void PrintList(const List<Vector2f>& list, const std::string& str = "")
 {
-	std::cout << *carr.begin() << std::endl;
+	std::cout << "========PRINTING LIST(" << str << "): =======\n";
+	int i = 0;
+	for (auto& it : list)
+	{
+		std::cout << "[" << i << "]: ";
+		std::cout << it.x << ", " << it.y << std::endl;
+		i++;
+	}
+	std::cout << "================================\n";
 }
 
-void Function(const std::array<int, 6>& carr)
-{
-	std::cout << *carr.begin() << std::endl;
-}
 int main()
 {
-	Vector<int> vec = { 1,2,3,4,5,6 };
+	List<Vector2f> list;
 
-	for (Vector<int>::ReversedIterator it = vec.rbegin();
-		it != vec.rend(); it++)
-		std::cout << *it << std::endl;
+	list.PushBack(Vector2f(5, 1));
+	list.EmplaceBack(3, 2);
+	list.EmplaceBack(1, 2);
+	list.EmplaceBack(6, 1);
+	list.EmplaceBack(22, 10);
+	list.EmplaceBack(8, 4);
+	
+	PrintList(list, "list");
 
+	auto test = list.begin() + 2;
+	auto test2 = list.end() - 2;
+
+	std::cout << test2->x << std::endl;
+
+	list.Erase(test, list.end() - 1);
+
+	PrintList(list, "list");
 
 	return 0;
 }

@@ -209,14 +209,16 @@ namespace DataStructures
 
 		ArrayIterator operator+(size_t right)
 		{
-			MyBase::operator+(right);
-			return *this;
+			ArrayIterator temp = *this;
+			temp += right;
+			return temp;
 		}
 
 		ArrayIterator operator-(size_t right)
 		{
-			MyBase::operator-(right);
-			return *this;
+			ArrayIterator temp = *this;
+			temp -= right;
+			return temp;
 		}
 
 		size_t operator-(const MyBase& right)
@@ -444,14 +446,16 @@ namespace DataStructures
 
 		ArrayReversedIterator operator+(size_t right)
 		{
-			MyBase::operator+(right);
-			return *this;
+			ArrayReversedIterator temp = *this;
+			temp += right;
+			return temp;
 		}
 
 		ArrayReversedIterator operator-(size_t right)
 		{
-			MyBase::operator-(right);
-			return *this;
+			ArrayReversedIterator temp = *this;
+			temp -= right;
+			return temp;
 		}
 
 		size_t operator-(const MyBase& right)

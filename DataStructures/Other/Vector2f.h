@@ -47,7 +47,7 @@ namespace Maths
 
 		~Vector2f() // destructor
 		{
-			std::cout << "DESTROY x=" << x << "\n";
+			std::cout << "DESTROY x=" << x << "  y=" << y << "\n";
 			delete[] dynamicArray;
 		}
 

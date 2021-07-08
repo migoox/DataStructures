@@ -1,301 +1,1019 @@
 #pragma once
-
 namespace DataStructures
 {
-	template<typename T>
+	template <typename T>
 	struct ListElement
 	{
-		ListElement<T>* prev;
-		ListElement<T>* next;
 		T data;
+		ListElement* prev;
+		ListElement* next;
+
+		ListElement()
+			: data(T()), prev(nullptr), next(nullptr)
+		{
+		}
+
+		ListElement(const T& data)
+			: data(data), prev(nullptr), next(nullptr)
+		{
+		}
+
+		ListElement(T&& data)
+			: data(std::move(data)), prev(nullptr), next(nullptr)
+		{
+		}
 	};
 
-	template<typename T>
+	template <typename MyList>
+	class ListConstIterator
+	{
+	public:
+		using DataType = typename MyList::DataType;
+
+		using Element = ListElement<DataType>;
+
+		using PointerElement = Element*;
+		using ConstPointerElement = const Element*;
+		using ReferenceElement = Element&;
+		using ConstReferenceElement = const Element&;
+
+		using PointerType = DataType*;
+		using ConstPointerType = const DataType*;
+		using ReferenceType = DataType&;
+		using ConstReferenceType = const DataType&;
+
+	private:
+		ConstPointerElement m_Ptr;
+
+	public:
+		ListConstIterator() noexcept
+			: m_Ptr(nullptr)
+		{
+		}
+
+		explicit ListConstIterator(ConstPointerElement ptr) noexcept
+			: m_Ptr(ptr)
+		{
+		}
+
+		ListConstIterator(const ListConstIterator& other) noexcept
+			: m_Ptr(other.m_Ptr)
+		{
+		}
+
+		ConstPointerType operator->() const
+		{
+			return &m_Ptr->data;
+		}
+
+		ConstReferenceType operator*() const
+		{
+			return m_Ptr->data;
+		}
+
+		ConstReferenceType operator[](size_t index)
+		{
+			PointerElement temp = m_Ptr + index;
+			return temp->data;
+		}
+
+		ListConstIterator operator++()
+		{
+			m_Ptr = m_Ptr->next;
+			return *this;
+		}
+
+		ListConstIterator operator++(int)
+		{
+			ListConstIterator temp = *this;
+			m_Ptr = m_Ptr->next;
+			return temp;
+		}
+
+		ListConstIterator operator--()
+		{
+			m_Ptr = m_Ptr->prev;
+			return *this;
+		}
+
+		ListConstIterator operator--(int)
+		{
+			ListConstIterator temp = *this;
+			m_Ptr = m_Ptr->prev;
+			return temp;
+		}
+
+		ListConstIterator operator+=(size_t right)
+		{
+			for (size_t i = 0; i < right; i++)
+			{
+				m_Ptr = m_Ptr->next;
+			}
+			return *this;
+		}
+
+		ListConstIterator operator-=(size_t right)
+		{
+			for (size_t i = 0; i < right; i++)
+			{
+				m_Ptr = m_Ptr->prev;
+			}
+			return *this;
+		}
+
+		ListConstIterator operator+(size_t right)
+		{
+			ListConstIterator temp = *this;
+			for (size_t i = 0; i < right; i++)
+			{
+				temp.m_Ptr = temp.m_Ptr->next;
+			}
+			return temp;
+		}
+
+		ListConstIterator operator-(size_t right)
+		{
+			ListConstIterator temp = *this;
+			for (size_t i = 0; i < right; i++)
+			{
+				temp.m_Ptr = temp.m_Ptr->prev;
+			}
+			return temp;
+		}
+
+		size_t operator-(const ListConstIterator& right)
+		{
+			return m_Ptr - right.m_Ptr;
+		}
+
+		ListConstIterator& operator=(const ListConstIterator& other)
+		{
+			if (m_Ptr != other.m_Ptr)
+			{
+				m_Ptr = other.m_Ptr;
+			}
+			return *this;
+		}
+
+		ListConstIterator& operator=(ConstPointerElement ptr)
+		{
+			if (m_Ptr != ptr)
+			{
+				m_Ptr = ptr;
+			}
+			return *this;
+		}
+
+		ListConstIterator& operator=(PointerElement ptr)
+		{
+			if (m_Ptr != ptr)
+			{
+				m_Ptr = ptr;
+			}
+			return *this;
+		}
+
+		bool operator==(const ListConstIterator& other)
+		{
+			return m_Ptr == other.m_Ptr;
+		}
+
+		bool operator!=(const ListConstIterator& other)
+		{
+			return !(m_Ptr == other.m_Ptr);
+		}
+
+		ConstPointerElement GetElement()
+		{
+			return m_Ptr;
+		}
+	};
+	
+	template <typename MyList>
+	class ListIterator : public ListConstIterator<MyList>
+	{
+	public:
+		using DataType = typename MyList::DataType;
+
+		using Element = ListElement<DataType>;
+
+		using PointerElement = Element*;
+		using ReferenceElement = Element&;
+
+		using PointerType = DataType*;
+		using ReferenceType = DataType&;
+
+		using MyBase = ListConstIterator<MyList>;
+
+		using MyBase::MyBase;
+	public:
+		ReferenceType operator*()
+		{
+			return const_cast<ReferenceType>(MyBase::operator*());
+		}
+
+		ReferenceType operator[](size_t index)
+		{
+			return const_cast<ReferenceType>(MyBase::operator[](index));
+		}
+
+		PointerType operator->() noexcept
+		{
+			return const_cast<PointerType>(MyBase::operator->());
+		}
+
+		ListIterator operator++()
+		{
+			MyBase::operator++();
+			return *this;
+		}
+
+		ListIterator operator++(int)
+		{
+			ListIterator temp = *this;
+			MyBase::operator++();
+			return temp;
+		}
+
+		ListIterator operator--()
+		{
+			MyBase::operator--();
+			return *this;
+		}
+
+		ListIterator operator--(int)
+		{
+			ListIterator temp = *this;
+			MyBase::operator--();
+			return temp;
+		}
+
+		ListIterator operator+=(size_t right)
+		{
+			MyBase::operator+=(right);
+			return *this;
+		}
+
+		ListIterator operator-=(size_t right)
+		{
+			MyBase::operator-=(right);
+			return *this;
+		}
+
+		ListIterator operator+(size_t right)
+		{
+			return ListIterator(MyBase::operator+(right).GetElement());
+		}
+
+		ListIterator operator-(size_t right)
+		{
+			return ListIterator(MyBase::operator-(right).GetElement());
+		}
+
+		size_t operator-(const MyBase& right)
+		{
+			return MyBase::operator-(right);
+		}
+
+		size_t operator-(const ListIterator& right)
+		{
+			return MyBase::operator-(right);
+		}
+
+		ListIterator& operator=(PointerType ptr)
+		{
+			MyBase::operator=(ptr);
+			return *this;
+		}
+
+		PointerElement GetElement()
+		{
+			return const_cast<PointerElement>(MyBase::GetElement());
+		}
+	};
+
+	template <typename MyList>
+	class ListConstReversedIterator
+	{
+	public:
+		using DataType = typename MyList::DataType;
+
+		using Element = ListElement<DataType>;
+
+		using PointerElement = Element*;
+		using ConstPointerElement = const Element*;
+		using ReferenceElement = Element&;
+		using ConstReferenceElement = const Element&;
+
+		using PointerType = DataType*;
+		using ConstPointerType = const DataType*;
+		using ReferenceType = DataType&;
+		using ConstReferenceType = const DataType&;
+
+	private:
+		ConstPointerElement m_Ptr;
+
+	public:
+		ListConstReversedIterator() noexcept
+			: m_Ptr(nullptr)
+		{
+		}
+
+		explicit ListConstReversedIterator(ConstPointerElement ptr) noexcept
+			: m_Ptr(ptr)
+		{
+		}
+
+		ListConstReversedIterator(const ListConstReversedIterator& other) noexcept
+			: m_Ptr(other.m_Ptr)
+		{
+		}
+
+		ConstPointerType operator->() const
+		{
+			return &m_Ptr->data;
+		}
+
+		ConstReferenceType operator*() const
+		{
+			return m_Ptr->data;
+		}
+
+		ConstReferenceType operator[](size_t index)
+		{
+			PointerElement temp = m_Ptr - index;
+			return temp->data;
+		}
+
+		ListConstReversedIterator operator++()
+		{
+			m_Ptr = m_Ptr->prev;
+			return *this;
+		}
+
+		ListConstReversedIterator operator++(int)
+		{
+			ListConstReversedIterator temp = *this;
+			m_Ptr = m_Ptr->prev;
+			return temp;
+		}
+
+		ListConstReversedIterator operator--()
+		{
+			m_Ptr = m_Ptr->next;
+			return *this;
+		}
+
+		ListConstReversedIterator operator--(int)
+		{
+			ListConstReversedIterator temp = *this;
+			m_Ptr = m_Ptr->next;
+			return temp;
+		}
+
+		ListConstReversedIterator operator+=(size_t right)
+		{
+			for (size_t i = 0; i < right; i++)
+			{
+				m_Ptr = m_Ptr->prev;
+			}
+			return *this;
+		}
+
+		ListConstReversedIterator operator-=(size_t right)
+		{
+			for (size_t i = 0; i < right; i++)
+			{
+				m_Ptr = m_Ptr->next;
+			}
+			return *this;
+		}
+
+		ListConstReversedIterator operator+(size_t right)
+		{
+			ListConstReversedIterator temp = *this;
+			for (size_t i = 0; i < right; i++)
+			{
+				temp.m_Ptr = temp.m_Ptr->prev;
+			}
+			return temp;
+		}
+
+		ListConstReversedIterator operator-(size_t right)
+		{
+			ListConstReversedIterator temp = *this;
+			for (size_t i = 0; i < right; i++)
+			{
+				temp.m_Ptr = temp.m_Ptr->next;
+			}
+			return temp;
+		}
+
+		size_t operator-(const ListConstReversedIterator& right)
+		{
+			return m_Ptr - right.m_Ptr;
+		}
+
+		ListConstReversedIterator& operator=(const ListConstReversedIterator& other)
+		{
+			if (m_Ptr != other.m_Ptr)
+			{
+				m_Ptr = other.m_Ptr;
+			}
+			return *this;
+		}
+
+		ListConstReversedIterator& operator=(ConstPointerElement ptr)
+		{
+			if (m_Ptr != ptr)
+			{
+				m_Ptr = ptr;
+			}
+			return *this;
+		}
+
+		ListConstReversedIterator& operator=(PointerElement ptr)
+		{
+			if (m_Ptr != ptr)
+			{
+				m_Ptr = ptr;
+			}
+			return *this;
+		}
+
+		bool operator==(const ListConstReversedIterator& other)
+		{
+			return m_Ptr == other.m_Ptr;
+		}
+
+		bool operator!=(const ListConstReversedIterator& other)
+		{
+			return !(m_Ptr == other.m_Ptr);
+		}
+
+		const Element* GetElement()
+		{
+			return m_Ptr;
+		}
+	};
+
+	template <typename MyList>
+	class ListReversedIterator : public ListConstReversedIterator<MyList>
+	{
+	public:
+		using DataType = typename MyList::DataType;
+
+		using Element = ListElement<DataType>;
+
+		using PointerElement = Element*;
+		using ReferenceElement = Element&;
+
+		using PointerType = DataType*;
+		using ReferenceType = DataType&;
+
+		using MyBase = ListConstReversedIterator<MyList>;
+
+		using MyBase::MyBase;
+	public:
+		ReferenceType operator*()
+		{
+			return const_cast<ReferenceType>(MyBase::operator*());
+		}
+
+		ReferenceType operator[](size_t index)
+		{
+			return const_cast<ReferenceType>(MyBase::operator[](index));
+		}
+
+		PointerType operator->() noexcept
+		{
+			return const_cast<PointerType>(MyBase::operator->());
+		}
+
+		ListReversedIterator operator++()
+		{
+			MyBase::operator++();
+			return *this;
+		}
+
+		ListReversedIterator operator++(int)
+		{
+			ListIterator temp = *this;
+			MyBase::operator++();
+			return temp;
+		}
+
+		ListReversedIterator operator--()
+		{
+			MyBase::operator--();
+			return *this;
+		}
+
+		ListReversedIterator operator--(int)
+		{
+			ListIterator temp = *this;
+			MyBase::operator--();
+			return temp;
+		}
+
+		ListReversedIterator operator+=(size_t right)
+		{
+			MyBase::operator+=(right);
+			return *this;
+		}
+
+		ListReversedIterator operator-=(size_t right)
+		{
+			MyBase::operator-=(right);
+			return *this;
+		}
+
+		ListReversedIterator operator+(size_t right)
+		{
+			return ListReversedIterator(MyBase::operator+(right).GetElement());
+		}
+
+		ListReversedIterator operator-(size_t right)
+		{
+			return ListReversedIterator(MyBase::operator-(right).GetElement());
+		}
+
+		size_t operator-(const MyBase& right)
+		{
+			return MyBase::operator-(right);
+		}
+
+		size_t operator-(const ListReversedIterator& right)
+		{
+			return MyBase::operator-(right);
+		}
+
+		ListReversedIterator& operator=(PointerType ptr)
+		{
+			MyBase::operator=(ptr);
+			return *this;
+		}
+	};
+
+	template <typename T>
 	class List
 	{
+	public: 
+		using DataType = T;
+
+		using Element = ListElement<T>;
+
+		using ConstIterator = ListConstIterator<List<DataType>>;
+		using Iterator = ListIterator<List<DataType>>;
+
+		using ConstReversedIterator = ListConstReversedIterator<List<DataType>>;
+		using ReversedIterator = ListReversedIterator<List<DataType>>;
+
 	private:
-		ListElement<T>* m_eBegin;
-		ListElement<T>* m_eEnd;
+		Element* m_Front = nullptr;
+		Element* m_Back = nullptr;
 
-		size_t m_sSize;
-	
-	private:
-		void Cpy()
-		{
+		Element* m_REnd = Element();
+		Element* m_End = Element();
 
-		}
+		size_t m_Size = 0;
 
-		void Move()
-		{
-
-		}
 	public:
-		List() // default constructor
+		List()
 		{
-			m_sSize = 0;
-			m_eBegin = nullptr;
-			m_eEnd = nullptr;
+
 		}
 
-		List(const List& other) // copy constructor
+		List(const List& other)
 		{
-			m_sSize = 0;
-			m_eBegin = nullptr;
-			m_eEnd = nullptr;
-			Cpy(other);
+			for (auto& it : other)
+			{
+				PushBack(it);
+			}
 		}
 
-		List(List&& other) noexcept // move constructor
+		List(std::initializer_list<DataType> list)
 		{
-			m_sSize = 0;
-			m_eBegin = nullptr;
-			m_eEnd = nullptr;
-			Move(std::move(other));
+			for (auto& it : list)
+				PushBack(std::move(it));
 		}
 
-		~List() // destructor
+		List(List&& other) noexcept
 		{
-			if (m_sSize == 0)
-				return;
+			m_Size = other.m_Size;
+			m_Front = other.m_Front;
+			m_Back = other.m_Back;
 
+			other.m_Size = 0;
+			other.m_Front = nullptr;
+			other.m_Back = nullptr;
+		}
+
+		~List()
+		{
 			Clear();
 		}
 
-		void PushBack(const T& newData)
+		void Assign(const DataType& value, size_t count = 1)
 		{
-			if (m_sSize == 0)
+			if (count == m_Size)
 			{
-				m_eEnd = new ListElement<T>;
-				m_eEnd->data = newData;
-				m_eEnd->next = nullptr;
-				m_eEnd->prev = nullptr;
-
-				m_eBegin = m_eEnd;
+				for (Iterator it = begin();
+					it != end(); it++)
+				{
+					*it = value;
+				}
 			}
 			else
 			{
-				ListElement<T>* oldEnd = m_eEnd;
-
-				m_eEnd = new ListElement<T>;
-
-				oldEnd->next = m_eEnd;
-
-				m_eEnd->data = newData;
-				m_eEnd->next = nullptr;
-				m_eEnd->prev = oldEnd;
+				Clear();
+				for (size_t i = 0; i < count; i++)
+					PushBack(value);
 			}
-			m_sSize++;
 		}
 
-		void PushFront(const T& newData)
+		void Assign(std::initializer_list<DataType> list)
 		{
-			if (m_sSize == 0)
+			if (m_Size == list.size())
 			{
-				m_eEnd = new ListElement<T>;
-				m_eEnd->data = newData;
-				m_eEnd->next = nullptr;
-				m_eEnd->prev = nullptr;
-
-				m_eBegin = m_eEnd;
+				auto otherIt = list.begin();
+				for (Iterator it = begin();
+					it != end(); it++, otherIt++)
+				{
+					*it = *otherIt;
+				}
 			}
 			else
 			{
-				ListElement<T>* oldBegin = m_eBegin;
-
-				m_eBegin = new ListElement<T>;
-
-				oldBegin->prev = m_eBegin;
-
-				m_eBegin->data = newData;
-				m_eBegin->next = oldBegin;
-				m_eBegin->prev = nullptr;
+				Clear();
+				for (auto& it : list)
+					PushBack(std::move(it));
 			}
-			m_sSize++;
 		}
 
-		bool PopBack()
+		void PushBack(const DataType& data)
 		{
-			if (m_sSize == 0)
-				return false;
-
-			if (m_sSize == 1)
+			if (m_Size == 0)
 			{
-				delete m_eEnd;
-				m_eEnd = nullptr;
-				m_eBegin = nullptr;
+				m_Back = new Element(data);
+				m_Front = m_Back;
 			}
 			else
 			{
-				ListElement<T>* previousElement = m_eEnd->prev;
-				delete m_eEnd;
+				Element* oldBack = m_Back;
+				m_Back = new Element(data);
 
-				m_eEnd = previousElement;
-				m_eEnd->next = nullptr;
+				m_Back->prev = oldBack;
+				oldBack->next = m_Back;
 			}
 
-			m_sSize--;
-
-			return true;
+			m_Size++;
 		}
-
-		bool PopFront()
+		
+		void PushBack(DataType&& data)
 		{
-			if (m_sSize == 0)
-				return false;
-
-			if (m_sSize == 1)
+			if (m_Size == 0)
 			{
-				delete m_eEnd;
-				m_eEnd = nullptr;
-				m_eBegin = nullptr;
+				m_Back = new Element(std::move(data));
+				m_Front = m_Back;
 			}
 			else
 			{
-				ListElement<T>* nextElement = m_eBegin->next;
-				delete m_eBegin;
+				Element* oldBack = m_Back;
+				m_Back = new Element(std::move(data));
 
-				m_eBegin = nextElement;
-				m_eBegin->prev = nullptr;
+				m_Back->prev = oldBack;
+				oldBack->next = m_Back;
 			}
 
-			m_sSize--;
-
-			return true;
+			m_Size++;
 		}
 
-		void RemoveAt(int index)
+		template <typename ...Args>
+		DataType& EmplaceBack(Args&&... args)
 		{
-			if (index >= m_sSize)
+			if (m_Size == 0)
+			{
+				m_Back = new Element(DataType(std::forward<Args>(args)...));
+				m_Front = m_Back;
+			}
+			else
+			{
+				Element* oldBack = m_Back;
+				m_Back = new Element(DataType(std::forward<Args>(args)...));
+
+				m_Back->prev = oldBack;
+				oldBack->next = m_Back;
+			}
+			m_Size++;
+			return m_Back->data;
+		}
+
+		void PushFront(const DataType& data)
+		{
+			if (m_Size == 0)
+			{
+				m_Back = new Element(data);
+				m_Front = m_Back;
+			}
+			else
+			{
+				Element* oldFront = m_Front;
+				m_Front = new Element(data);
+
+				m_Front->next = oldFront;
+				oldFront->prev = m_Front;
+			}
+
+			m_Size++;
+		}
+
+		void PushFront(DataType&& data)
+		{
+			if (m_Size == 0)
+			{
+				m_Back = new Element(std::move(data));
+				m_Front = m_Back;
+			}
+			else
+			{
+				Element* oldFront = m_Front;
+				m_Front = new Element(std::move(data));
+
+				m_Front->next = oldFront;
+				oldFront->prev = m_Front;
+			}
+
+			m_Size++;
+		}
+
+		template <typename ...Args>
+		DataType& EmplaceFront(Args&&... args)
+		{
+			if (m_Size == 0)
+			{
+				m_Back = new Element(DataType(std::forward<Args>(args)...));
+				m_Front = m_Back;
+			}
+			else
+			{
+				Element* oldFront = m_Front;
+				m_Front = new Element(DataType(std::forward<Args>(args)...));
+
+				m_Front->next = oldFront;
+				oldFront->prev = m_Front;
+			}
+			m_Size++;
+			return m_Back->data;
+		}
+
+		void PopBack()
+		{
+			if (m_Size == 1)
+			{
+				delete m_Back;
+
+				m_Back = nullptr;
+				m_Front = nullptr;
+			}
+			else
+			{
+				Element* elementToDelete = m_Back;
+				m_Back = m_Back->prev;
+				m_Back->next = nullptr;
+
+				delete elementToDelete;
+			}
+
+			m_Size--;
+		}
+
+		void PopFront()
+		{
+			if (m_Size == 1)
+			{
+				delete m_Front;
+
+				m_Back = nullptr;
+				m_Front = nullptr;
+
 				return;
-
-			if (m_sSize == 1)
-			{
-				delete m_eEnd;
-				m_eEnd = nullptr;
-				m_eBegin = nullptr;
-			}
-
-			if (index == m_sSize - 1)
-			{
-				PopBack();
-			}
-			else if (index == 0)
-			{
-				PopFront();
 			}
 			else
 			{
-				ListElement<T>* element;
-				element = m_eBegin;
-				for (size_t i = 0; i < index; i++)
-				{
-					element = element->next;
-				}
+				Element* elementToDelete = m_Front;
+				m_Front = m_Front->next;
+				m_Front->prev = nullptr;
 
-				element->next->prev = element->prev;
-				element->prev->next = element->next;
-
-				delete element;
-
-				m_sSize--; 
-			}
-		}
-
-		void Remove(const T& data)
-		{
-			if (m_sSize == 1)
-			{
-				if (m_eEnd->data == data)
-				{
-					delete m_eEnd;
-					m_eEnd = nullptr;
-					m_eBegin = nullptr;
-					m_sSize--;
-				}
-				return;
+				delete elementToDelete;
 			}
 
-			ListElement<T>* element = m_eBegin;
-			ListElement<T>* currentElement;
-
-			int size = m_sSize;
-
-			for (size_t i = 0; i < size; i++)
-			{
-				currentElement = element;
-				element = element->next;
-
-				if (currentElement->data == data)
-				{
-					if (currentElement == m_eBegin)
-					{
-						PopFront();
-					}
-					else if (currentElement == m_eEnd)
-					{
-						PopBack();
-					}
-					else
-					{
-						currentElement->next->prev = currentElement->prev;
-						currentElement->prev->next = currentElement->next;
-
-						delete currentElement;
-
-						m_sSize--;
-					}
-				}
-			}
-		}
-
-		int Size()
-		{
-			return m_sSize;
+			m_Size--;
 		}
 
 		void Clear()
 		{
-			ListElement<T>* previousElement;
-			for (size_t i = 0; i < m_sSize; i++)
+			if (m_Size == 0)
+				return;
+
+			ConstIterator it(m_Front);
+			const Element* elementToDelete = nullptr;
+
+			while (it != end())
 			{
-				previousElement = m_eEnd->prev;
-				delete m_eEnd;
-				m_eEnd = previousElement;
+				elementToDelete = it.GetElement();
+				it++;
+				delete elementToDelete;
 			}
-			m_sSize = 0;
+
+			m_Size = 0;
 		}
 
-		T& operator[](int index)
+		void Insert(ConstIterator where, const DataType& value, int count = 1)
 		{
-			ListElement<T>* element;
+			m_Size += count;
 
-			element = m_eBegin;
-			for (size_t i = 0; i < index; i++)
+			Element* whereElement = const_cast<Element*>(where.GetElement());
+
+			if (where == begin())
 			{
-				element = element->next;
+				Element* newElement = new Element(value);
+				m_Front = newElement;
+
+				newElement->next = whereElement;
+				whereElement->prev = newElement;
+
+				count--;
+			}
+			else if (where == end())
+			{
+				Element* oldBack = m_Back;
+				m_Back = new Element(value);
+
+				m_Back->prev = oldBack;
+				oldBack->next = m_Back;
+
+				whereElement = m_Back;
+
+				count--;
 			}
 
-			return element->data;
+			for (size_t i = 0; i < count; i++)
+			{
+				Element* newElement = new Element(value);
+
+				newElement->next = whereElement;
+				newElement->prev = whereElement->prev;
+
+				whereElement->prev->next = newElement;
+				whereElement->prev = newElement;
+			}
 		}
 
-		friend std::ostream& operator<<(std::ostream& os, const List& other) // stream friend
+		void InsertAt(int index, const DataType& value, int count = 1)
 		{
-			if (other.m_sSize == 0)
-			{
-				os << "LIST IS EMPTY\n";
-				return os;
-			}
-
-			ListElement<T>* temp = other.m_eEnd;
-
-			os << "[" << other.m_sSize - 1 << "]: " << temp->data << "\n";
-			for (size_t i = 0; i < other.m_sSize - 1; i++)
-			{
-				temp = temp->prev;
-				os << "["<< other.m_sSize - i - 2 << "]: " << temp->data << "\n";
-			}
-
-			return os;
+			Insert(begin() + index, value, count);
 		}
+
+		void Erase(ConstIterator where)
+		{
+			if (where == begin())
+			{
+				PopFront();
+			}
+			else if (where == end())
+			{
+				PopBack();
+			}
+			else
+			{
+				Element* elementToDelete = const_cast<Element*>(where.GetElement());
+				elementToDelete->prev->next = elementToDelete->next;
+				elementToDelete->next->prev = elementToDelete->prev;
+
+				delete elementToDelete;
+
+				m_Size--;
+			}
+		}
+
+		// first inclusive and last exclusive
+		void Erase(ConstIterator first, ConstIterator last)
+		{
+			ConstIterator leftIt = first - 1;
+			Element* left = const_cast<Element*>(leftIt.GetElement());
+			Element* right = const_cast<Element*>(last.GetElement());
+
+			left->next = right;
+			right->prev = left;
+
+			ConstIterator it(first);
+			const Element* elementToDelete = nullptr;
+			while (it != last)
+			{
+				elementToDelete = it.GetElement();
+				it++;
+				delete elementToDelete;
+				m_Size--;
+			}
+		}
+
+		List& operator=(const List& other)
+		{
+			if (*this != other)
+			{
+				if (m_Size == other.m_Size)
+				{
+					ConstIterator otherIt = other.begin();
+
+					for (Iterator it = begin();
+						it != end(); it++, otherIt++)
+					{
+						*it = *otherIt;
+					}
+				}
+				else
+				{
+					Clear();
+					for (auto& it : other)
+						PushBack(it);
+				}
+			}
+			return *this;
+		}
+		
+		List& operator=(List&& other) noexcept
+		{
+			if (*this != other)
+			{
+				Clear();
+				m_Size = other.m_Size;
+				m_Front = other.m_Front;
+				m_Back = other.m_Back;
+
+				other.m_Size = 0;
+				other.m_Front = nullptr;
+				other.m_Back = nullptr;
+			}
+			return *this;
+		}
+
+		bool operator==(const List& other)
+		{
+			if (m_Size != other.m_Size)
+				return false;
+
+			ConstIterator otherIt = other.begin();
+			for (Iterator it = begin();
+				it != end(); it++, otherIt++)
+			{
+				if (*it != *otherIt)
+					return false;
+			}
+
+			return true;
+		}
+
+		bool operator!=(const List& other)
+		{
+			return !(*this == other);
+		}
+
+		/* GETTERS & SETTERS */
+
+		DataType& Front() { return m_Front->data; }
+		const DataType& Front() const { return m_Front->data; }
+
+		DataType& Back() { return m_Back->data; }
+		const DataType& Back() const { return m_Back->data; }
+
+		DataType& operator[](size_t index) { return *(begin() + index); }
+		const DataType& operator[](size_t index) const { return *(begin() + index); }
+
+		size_t Size() const { return m_Size; }
+
+		bool IsEmpty() const { return m_Size == 0; }
+
+		// default iterators
+		Iterator begin() { return Iterator(m_Front); }
+		ConstIterator begin() const { return ConstIterator(m_Front); }
+
+		Iterator end() { return Iterator(nullptr); }
+		ConstIterator end() const { return ConstIterator(nullptr); }
+
+		// reversed iterators
+		ReversedIterator rbegin() { return ReversedIterator(nullptr); }
+		ConstReversedIterator rbegin() const { return ConstReversedIterator(nullptr); }
+
+		ReversedIterator rend() { return ReversedIterator(m_Back); }
+		ConstReversedIterator rend() const { return ConstReversedIterator(m_Back); }
+
+		// const iterators
+		Iterator cbegin() const { return ConstIterator(m_Front); }
+		ConstIterator cend() const { return ConstIterator(nullptr); }
+
+		ConstReversedIterator crbegin() const { return ConstReversedIterator(nullptr); }
+		ConstReversedIterator crend() const { return ConstReversedIterator(m_Back); }
 	};
+
 }

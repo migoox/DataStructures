@@ -165,7 +165,7 @@ namespace DataStructures
 			return const_cast<ReferenceType>(MyBase::operator[](index));
 		}
 
-		PointerType operator->()
+		PointerType operator->() noexcept
 		{
 			return const_cast<ReferenceType>(MyBase::operator->());
 		}
@@ -210,14 +210,16 @@ namespace DataStructures
 
 		VectorIterator operator+(size_t right)
 		{
-			MyBase::operator+(right);
-			return *this;
+			VectorIterator temp = *this;
+			temp += right;
+			return temp;
 		}
 
 		VectorIterator operator-(size_t right)
 		{
-			MyBase::operator-(right);
-			return *this;
+			VectorIterator temp = *this;
+			temp -= right;
+			return temp;
 		}
 
 		size_t operator-(const MyBase& right)
@@ -445,14 +447,16 @@ namespace DataStructures
 
 		VectorReversedIterator operator+(size_t right)
 		{
-			MyBase::operator+(right);
-			return *this;
+			VectorReversedIterator temp = *this;
+			temp += right;
+			return temp;
 		}
 
 		VectorReversedIterator operator-(size_t right)
 		{
-			MyBase::operator-(right);
-			return *this;
+			VectorReversedIterator temp = *this;
+			temp -= right;
+			return temp;
 		}
 
 		size_t operator-(const MyBase& right)
@@ -763,53 +767,9 @@ namespace DataStructures
 			m_Size += count;
 		}
 
-		void Insert(Iterator where, DataType&& var, int count = 1)
-		{
-			// find index of where iterator
-			// it's necessary, because after possible reallocation
-			// adress of where will be different
-			size_t whereIndex = where - begin();
-
-			// reallocate memory in case it's needed
-			if (m_Size + count >= m_Capacity)
-			{
-				if (m_Size + m_Size / 2 < m_Size + count)
-					ReAlloc(m_Size + count);
-				else
-					ReAlloc(m_Size + m_Size / 2);
-
-				//reassign where pointer
-				where = &m_Data[whereIndex];
-			}
-
-			// call default constructors at the new last elements
-			for (size_t i = 0; i < count; i++)
-				new (&m_Data[m_Size + i]) DataType();
-
-			// move elements using move assignment
-			for (Iterator bottomIt = end() - 1, topIt = end() + count - 1;
-				bottomIt != where - 1;
-				bottomIt--, topIt--)
-			{
-				*topIt = std::move(*bottomIt);
-			}
-
-			// finally assign new value to prepared place
-			for (size_t i = 0; i < count; i++)
-				new (&m_Data[whereIndex + i]) DataType(std::move(var));
-
-			// increase the size by one
-			m_Size += count;
-		}
-
 		void InsertAt(size_t index, const DataType& var, int count = 1)
 		{
 			Insert(begin() + index, var, count);
-		}
-
-		void InsertAt(size_t index, DataType&& var, int count = 1)
-		{
-			Insert(begin() + index, std::move(var), count);
 		}
 
 		template <typename ...Args>
@@ -960,6 +920,7 @@ namespace DataStructures
 		// const iterators
 		ConstIterator cbegin() const { return ConstIterator(m_Data); }
 		ConstIterator cend() const { return ConstIterator(m_Data + m_Size); }
+
 		ConstReversedIterator crbegin() const { return ConstReversedIterator(m_Data + m_Size - 1); }
 		ConstReversedIterator crend() const { return ConstReversedIterator(m_Data - 1); }
 	};
