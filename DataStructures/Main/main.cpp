@@ -57,13 +57,16 @@ static void PrintList(const List<Vector2f>& list, const std::string& str = "")
 int main()
 {
 	List<int> list;
+	list.Assign(5, 6);
 
-	list.EmplaceBack(3);
-	list.EmplaceBack(3);
-	list.EmplaceBack(6, 1);
-	list.EmplaceBack(3);
-	list.EmplaceBack(8, 4);
+	list.Remove(5);
 
+	list.Assign(4, 2);
+	list.Insert(list.begin() + 1, 3, 3);
 
+	for (List<int>::Iterator it = list.begin(); 
+		it != list.end(); it++)
+		std::cout << *it << " ";
+	std::cout << std::endl;
 	return 0;
 }

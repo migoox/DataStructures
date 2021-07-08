@@ -712,7 +712,7 @@ namespace DataStructures
 			else
 			{
 				Element* oldBack = m_Back;
-				m_Back = new Element(data);
+				m_Back = new Element(data, oldBack, m_RightEnd);
 
 				oldBack->next = m_Back;
 			}
@@ -919,6 +919,7 @@ namespace DataStructures
 			delete elementToDelete;
 
 			m_Size--;
+
 			if (IsEmpty())
 			{
 				m_Front = nullptr;
