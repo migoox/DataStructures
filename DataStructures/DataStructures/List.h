@@ -22,6 +22,20 @@ namespace DataStructures
 			: data(std::move(data)), prev(nullptr), next(nullptr)
 		{
 		}
+
+		ListElement(const T& data, ListElement* left, ListElement* right)
+			: data(data), prev(left), next(right)
+		{
+			prev->next = this;
+			next->prev = this;
+		}
+
+		ListElement(T&& data, ListElement* left, ListElement* right)
+			: data(data), prev(left), next(right)
+		{
+			prev->next = this;
+			next->prev = this;
+		}
 	};
 
 	template <typename MyList>
@@ -573,37 +587,63 @@ namespace DataStructures
 		Element* m_Front = nullptr;
 		Element* m_Back = nullptr;
 
-		Element* m_REnd = Element();
-		Element* m_End = Element();
+		Element* m_LeftEnd;
+		Element* m_RightEnd;
 
 		size_t m_Size = 0;
+
+	private:
+		void PutNextToEachOther(Element* left, Element* right)
+		{
+			left->next = right;
+			right->prev = left;
+		}
 
 	public:
 		List()
 		{
-
+			m_LeftEnd = new Element();
+			m_RightEnd = new Element();
+			PutNextToEachOther(m_LeftEnd, m_RightEnd);
 		}
 
 		List(const List& other)
 		{
+			m_LeftEnd = new Element();
+			m_RightEnd = new Element();
+			PutNextToEachOther(m_LeftEnd, m_RightEnd);
+
 			for (auto& it : other)
-			{
 				PushBack(it);
-			}
 		}
 
 		List(std::initializer_list<DataType> list)
 		{
+			m_LeftEnd = new Element();
+			m_RightEnd = new Element();
+			PutNextToEachOther(m_LeftEnd, m_RightEnd);
+
 			for (auto& it : list)
 				PushBack(std::move(it));
 		}
 
 		List(List&& other) noexcept
 		{
+			m_LeftEnd = new Element();
+			m_RightEnd = new Element();
+			PutNextToEachOther(m_LeftEnd, m_RightEnd);
+
 			m_Size = other.m_Size;
 			m_Front = other.m_Front;
 			m_Back = other.m_Back;
 
+			if (m_Size > 0)
+			{
+				PutNextToEachOther(m_LeftEnd, m_Front);
+				PutNextToEachOther(m_Back, m_RightEnd);
+			}
+
+			PutNextToEachOther(other.m_LeftEnd, other.m_RightEnd);
 			other.m_Size = 0;
 			other.m_Front = nullptr;
 			other.m_Back = nullptr;
@@ -612,6 +652,9 @@ namespace DataStructures
 		~List()
 		{
 			Clear();
+
+			delete m_RightEnd;
+			delete m_LeftEnd;
 		}
 
 		void Assign(const DataType& value, size_t count = 1)
@@ -655,7 +698,7 @@ namespace DataStructures
 		{
 			if (m_Size == 0)
 			{
-				m_Back = new Element(data);
+				m_Back = new Element(data, m_LeftEnd, m_RightEnd);
 				m_Front = m_Back;
 			}
 			else
@@ -663,7 +706,6 @@ namespace DataStructures
 				Element* oldBack = m_Back;
 				m_Back = new Element(data);
 
-				m_Back->prev = oldBack;
 				oldBack->next = m_Back;
 			}
 
@@ -674,15 +716,14 @@ namespace DataStructures
 		{
 			if (m_Size == 0)
 			{
-				m_Back = new Element(std::move(data));
+				m_Back = new Element(std::move(data), m_LeftEnd, m_RightEnd);
 				m_Front = m_Back;
 			}
 			else
 			{
 				Element* oldBack = m_Back;
-				m_Back = new Element(std::move(data));
+				m_Back = new Element(std::move(data), oldBack, m_RightEnd);
 
-				m_Back->prev = oldBack;
 				oldBack->next = m_Back;
 			}
 
@@ -694,18 +735,19 @@ namespace DataStructures
 		{
 			if (m_Size == 0)
 			{
-				m_Back = new Element(DataType(std::forward<Args>(args)...));
+				m_Back = new Element(DataType(std::forward<Args>(args)...), m_LeftEnd, m_RightEnd);
 				m_Front = m_Back;
 			}
 			else
 			{
 				Element* oldBack = m_Back;
-				m_Back = new Element(DataType(std::forward<Args>(args)...));
+				m_Back = new Element(DataType(std::forward<Args>(args)...), oldBack, m_RightEnd);
 
-				m_Back->prev = oldBack;
 				oldBack->next = m_Back;
 			}
+
 			m_Size++;
+
 			return m_Back->data;
 		}
 
@@ -713,15 +755,14 @@ namespace DataStructures
 		{
 			if (m_Size == 0)
 			{
-				m_Back = new Element(data);
+				m_Back = new Element(data, m_LeftEnd, m_RightEnd);
 				m_Front = m_Back;
 			}
 			else
 			{
 				Element* oldFront = m_Front;
-				m_Front = new Element(data);
+				m_Front = new Element(data, m_LeftEnd, oldFront);
 
-				m_Front->next = oldFront;
 				oldFront->prev = m_Front;
 			}
 
@@ -732,15 +773,14 @@ namespace DataStructures
 		{
 			if (m_Size == 0)
 			{
-				m_Back = new Element(std::move(data));
+				m_Back = new Element(std::move(data), m_LeftEnd, m_RightEnd);
 				m_Front = m_Back;
 			}
 			else
 			{
 				Element* oldFront = m_Front;
-				m_Front = new Element(std::move(data));
+				m_Front = new Element(std::move(data), m_LeftEnd, oldFront);
 
-				m_Front->next = oldFront;
 				oldFront->prev = m_Front;
 			}
 
@@ -752,18 +792,19 @@ namespace DataStructures
 		{
 			if (m_Size == 0)
 			{
-				m_Back = new Element(DataType(std::forward<Args>(args)...));
+				m_Back = new Element(DataType(std::forward<Args>(args)...), m_LeftEnd, m_RightEnd);
 				m_Front = m_Back;
 			}
 			else
 			{
 				Element* oldFront = m_Front;
-				m_Front = new Element(DataType(std::forward<Args>(args)...));
+				m_Front = new Element(DataType(std::forward<Args>(args)...), m_LeftEnd, oldFront);
 
-				m_Front->next = oldFront;
 				oldFront->prev = m_Front;
 			}
+
 			m_Size++;
+
 			return m_Back->data;
 		}
 
@@ -773,6 +814,8 @@ namespace DataStructures
 			{
 				delete m_Back;
 
+				PutNextToEachOther(m_LeftEnd, m_RightEnd);
+
 				m_Back = nullptr;
 				m_Front = nullptr;
 			}
@@ -780,9 +823,10 @@ namespace DataStructures
 			{
 				Element* elementToDelete = m_Back;
 				m_Back = m_Back->prev;
-				m_Back->next = nullptr;
 
 				delete elementToDelete;
+
+				PutNextToEachOther(m_Back, m_RightEnd);
 			}
 
 			m_Size--;
@@ -794,18 +838,19 @@ namespace DataStructures
 			{
 				delete m_Front;
 
+				PutNextToEachOther(m_LeftEnd, m_RightEnd);
+
 				m_Back = nullptr;
 				m_Front = nullptr;
-
-				return;
 			}
 			else
 			{
 				Element* elementToDelete = m_Front;
 				m_Front = m_Front->next;
-				m_Front->prev = nullptr;
 
 				delete elementToDelete;
+
+				PutNextToEachOther(m_LeftEnd, m_Front);
 			}
 
 			m_Size--;
@@ -826,48 +871,21 @@ namespace DataStructures
 				delete elementToDelete;
 			}
 
+			PutNextToEachOther(m_LeftEnd, m_RightEnd);
 			m_Size = 0;
 		}
 
 		void Insert(ConstIterator where, const DataType& value, int count = 1)
 		{
-			m_Size += count;
-
 			Element* whereElement = const_cast<Element*>(where.GetElement());
 
-			if (where == begin())
-			{
-				Element* newElement = new Element(value);
-				m_Front = newElement;
-
-				newElement->next = whereElement;
-				whereElement->prev = newElement;
-
-				count--;
-			}
-			else if (where == end())
-			{
-				Element* oldBack = m_Back;
-				m_Back = new Element(value);
-
-				m_Back->prev = oldBack;
-				oldBack->next = m_Back;
-
-				whereElement = m_Back;
-
-				count--;
-			}
-
 			for (size_t i = 0; i < count; i++)
-			{
-				Element* newElement = new Element(value);
+				Element* newElement = new Element(value, whereElement->prev, whereElement);
+			
+			m_Size += count;
 
-				newElement->next = whereElement;
-				newElement->prev = whereElement->prev;
-
-				whereElement->prev->next = newElement;
-				whereElement->prev = newElement;
-			}
+			m_Front = m_LeftEnd->next;
+			m_Back = m_RightEnd->prev;
 		}
 
 		void InsertAt(int index, const DataType& value, int count = 1)
@@ -877,23 +895,21 @@ namespace DataStructures
 
 		void Erase(ConstIterator where)
 		{
-			if (where == begin())
+			Element* elementToDelete = const_cast<Element*>(where.GetElement());
+			PutNextToEachOther(elementToDelete->prev, elementToDelete->next);
+
+			delete elementToDelete;
+
+			m_Size--;
+			if (IsEmpty())
 			{
-				PopFront();
-			}
-			else if (where == end())
-			{
-				PopBack();
+				m_Front = nullptr;
+				m_Back = nullptr;
 			}
 			else
 			{
-				Element* elementToDelete = const_cast<Element*>(where.GetElement());
-				elementToDelete->prev->next = elementToDelete->next;
-				elementToDelete->next->prev = elementToDelete->prev;
-
-				delete elementToDelete;
-
-				m_Size--;
+				m_Front = m_LeftEnd->next;
+				m_Back = m_RightEnd->prev;
 			}
 		}
 
@@ -901,20 +917,30 @@ namespace DataStructures
 		void Erase(ConstIterator first, ConstIterator last)
 		{
 			ConstIterator leftIt = first - 1;
-			Element* left = const_cast<Element*>(leftIt.GetElement());
-			Element* right = const_cast<Element*>(last.GetElement());
-
-			left->next = right;
-			right->prev = left;
+			PutNextToEachOther(
+				const_cast<Element*>(leftIt.GetElement()), 
+				const_cast<Element*>(last.GetElement()));
 
 			ConstIterator it(first);
 			const Element* elementToDelete = nullptr;
+
 			while (it != last)
 			{
 				elementToDelete = it.GetElement();
 				it++;
 				delete elementToDelete;
 				m_Size--;
+			}
+
+			if (IsEmpty())
+			{
+				m_Front = nullptr;
+				m_Back = nullptr;
+			}
+			else
+			{
+				m_Front = m_LeftEnd->next;
+				m_Back = m_RightEnd->prev;
 			}
 		}
 
@@ -951,6 +977,13 @@ namespace DataStructures
 				m_Front = other.m_Front;
 				m_Back = other.m_Back;
 
+				if (m_Size > 0)
+				{
+					PutNextToEachOther(m_LeftEnd, m_Front);
+					PutNextToEachOther(m_Back, m_RightEnd);
+				}
+
+				PutNextToEachOther(other.m_LeftEnd, other.m_RightEnd);
 				other.m_Size = 0;
 				other.m_Front = nullptr;
 				other.m_Back = nullptr;
@@ -995,25 +1028,55 @@ namespace DataStructures
 		bool IsEmpty() const { return m_Size == 0; }
 
 		// default iterators
-		Iterator begin() { return Iterator(m_Front); }
-		ConstIterator begin() const { return ConstIterator(m_Front); }
+		Iterator begin() 
+		{ 
+			if (IsEmpty())
+				return end();
+			return Iterator(m_Front); 
+		}
+		ConstIterator begin() const 
+		{ 
+			if (IsEmpty())
+				return end();
+			return ConstIterator(m_Front); 
+		}
 
-		Iterator end() { return Iterator(nullptr); }
-		ConstIterator end() const { return ConstIterator(nullptr); }
+		Iterator end() { return Iterator(m_RightEnd); }
+		ConstIterator end() const { return ConstIterator(m_RightEnd); }
 
 		// reversed iterators
-		ReversedIterator rbegin() { return ReversedIterator(nullptr); }
-		ConstReversedIterator rbegin() const { return ConstReversedIterator(nullptr); }
+		ReversedIterator rbegin()
+		{ 
+			if (IsEmpty())
+				return rend();
+			return ReversedIterator(m_Back); 
+		}
+		ConstReversedIterator rbegin() const 
+		{ 
+			if (IsEmpty())
+				return rend();
+			return ConstReversedIterator(m_Back); 
+		}
 
-		ReversedIterator rend() { return ReversedIterator(m_Back); }
-		ConstReversedIterator rend() const { return ConstReversedIterator(m_Back); }
+		ReversedIterator rend() { return ReversedIterator(m_LeftEnd); }
+		ConstReversedIterator rend() const { return ConstReversedIterator(m_LeftEnd); }
 
 		// const iterators
-		Iterator cbegin() const { return ConstIterator(m_Front); }
-		ConstIterator cend() const { return ConstIterator(nullptr); }
+		ConstIterator cbegin() const
+		{
+			if (IsEmpty())
+				return end();
+			return ConstIterator(m_Front);
+		}
+		ConstIterator cend() const { return ConstIterator(m_RightEnd); }
 
-		ConstReversedIterator crbegin() const { return ConstReversedIterator(nullptr); }
-		ConstReversedIterator crend() const { return ConstReversedIterator(m_Back); }
+		ConstReversedIterator crbegin() const
+		{
+			if (IsEmpty())
+				return rend();
+			return ConstReversedIterator(m_Back);
+		}
+		ConstReversedIterator crend() const { return ConstReversedIterator(m_LeftEnd); }
 	};
 
 }

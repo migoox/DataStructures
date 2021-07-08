@@ -67,13 +67,9 @@ int main()
 	
 	PrintList(list, "list");
 
-	auto test = list.begin() + 2;
-	auto test2 = list.end() - 2;
 
-	std::cout << test2->x << std::endl;
-
-	list.Erase(test, list.end() - 1);
-
+	list.Erase(list.begin()+1, list.end());
+	list.Insert(list.begin(), Vector2f(5), 2);
 	PrintList(list, "list");
 
 	return 0;
