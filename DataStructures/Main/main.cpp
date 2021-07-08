@@ -56,21 +56,14 @@ static void PrintList(const List<Vector2f>& list, const std::string& str = "")
 
 int main()
 {
-	List<Vector2f> list;
+	List<int> list;
 
-	list.PushBack(Vector2f(5, 1));
-	list.EmplaceBack(3, 2);
-	list.EmplaceBack(1, 2);
+	list.EmplaceBack(3);
+	list.EmplaceBack(3);
 	list.EmplaceBack(6, 1);
-	list.EmplaceBack(22, 10);
+	list.EmplaceBack(3);
 	list.EmplaceBack(8, 4);
-	
-	PrintList(list, "list");
 
-
-	list.Erase(list.begin()+1, list.end());
-	list.Insert(list.begin(), Vector2f(5), 2);
-	PrintList(list, "list");
 
 	return 0;
 }
