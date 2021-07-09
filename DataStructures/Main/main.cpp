@@ -41,6 +41,19 @@ static void PrintVector(const Vector<std::string>& vec)
 
 }
 
+static void PrintVector(const Vector<int>& vec)
+{
+	std::cout << "========PRINTING VECTOR: =======\n";
+	for (size_t i = 0; i < vec.Size(); i++)
+	{
+		const int& it = vec[i];
+
+		std::cout << "[" << i << "]: " << it << std::endl;
+	}
+	std::cout << "================================\n";
+
+}
+
 static void PrintList(const List<Vector2f>& list, const std::string& str = "")
 {
 	std::cout << "========PRINTING LIST(" << str << "): =======\n";
@@ -56,17 +69,24 @@ static void PrintList(const List<Vector2f>& list, const std::string& str = "")
 
 int main()
 {
-	List<int> list;
-	list.Assign(5, 6);
+	Vector<Vector2f> vec;
 
-	list.Remove(5);
+	vec.EmplaceBack(5);
+	vec.EmplaceBack(2);
+	vec.EmplaceBack(7);
+	vec.EmplaceBack(1);
+	vec.EmplaceBack(1);
+	vec.EmplaceBack(2);
 
-	list.Assign(4, 2);
-	list.Insert(list.begin() + 1, 3, 3);
+	PrintVector(vec);
 
-	for (List<int>::Iterator it = list.begin(); 
-		it != list.end(); it++)
-		std::cout << *it << " ";
-	std::cout << std::endl;
+	auto it = vec.begin();
+	auto cit = vec.cbegin();
+
+
+
+	PrintVector(vec);
+
+
 	return 0;
 }

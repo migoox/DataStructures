@@ -205,7 +205,7 @@ namespace DataStructures
 			return !(m_Ptr == other.m_Ptr);
 		}
 
-		ConstPointerElement GetElement()
+		ConstPointerElement ElementPointer()
 		{
 			return m_Ptr;
 		}
@@ -284,12 +284,12 @@ namespace DataStructures
 
 		ListIterator operator+(size_t right)
 		{
-			return ListIterator(MyBase::operator+(right).GetElement());
+			return ListIterator(MyBase::operator+(right).ElementPointer());
 		}
 
 		ListIterator operator-(size_t right)
 		{
-			return ListIterator(MyBase::operator-(right).GetElement());
+			return ListIterator(MyBase::operator-(right).ElementPointer());
 		}
 
 		size_t operator-(const MyBase& right)
@@ -308,9 +308,9 @@ namespace DataStructures
 			return *this;
 		}
 
-		PointerElement GetElement()
+		PointerElement ElementPointer()
 		{
-			return const_cast<PointerElement>(MyBase::GetElement());
+			return const_cast<PointerElement>(MyBase::ElementPointer());
 		}
 	};
 
@@ -473,7 +473,7 @@ namespace DataStructures
 			return !(m_Ptr == other.m_Ptr);
 		}
 
-		const Element* GetElement()
+		const Element* ElementPointer()
 		{
 			return m_Ptr;
 		}
@@ -552,12 +552,12 @@ namespace DataStructures
 
 		ListReversedIterator operator+(size_t right)
 		{
-			return ListReversedIterator(MyBase::operator+(right).GetElement());
+			return ListReversedIterator(MyBase::operator+(right).ElementPointer());
 		}
 
 		ListReversedIterator operator-(size_t right)
 		{
-			return ListReversedIterator(MyBase::operator-(right).GetElement());
+			return ListReversedIterator(MyBase::operator-(right).ElementPointer());
 		}
 
 		size_t operator-(const MyBase& right)
@@ -874,7 +874,7 @@ namespace DataStructures
 
 			while (it != end())
 			{
-				elementToDelete = it.GetElement();
+				elementToDelete = it.ElementPointer();
 				it++;
 				delete elementToDelete;
 			}
@@ -885,7 +885,7 @@ namespace DataStructures
 
 		void Insert(ConstIterator where, const DataType& value, int count = 1)
 		{
-			Element* whereElement = const_cast<Element*>(where.GetElement());
+			Element* whereElement = const_cast<Element*>(where.ElementPointer());
 
 			for (size_t i = 0; i < count; i++)
 				Element* newElement = new Element(value, whereElement->prev, whereElement);
@@ -899,7 +899,7 @@ namespace DataStructures
 		template <typename ...Args>
 		Iterator Emplace(ConstIterator where, Args&&... args)
 		{
-			Element* whereElement = const_cast<Element*>(where.GetElement());
+			Element* whereElement = const_cast<Element*>(where.ElementPointer());
 
 			Element* newElement = new Element(whereElement->prev, whereElement, args...);
 
@@ -913,7 +913,7 @@ namespace DataStructures
 
 		void Erase(ConstIterator where)
 		{
-			Element* elementToDelete = const_cast<Element*>(where.GetElement());
+			Element* elementToDelete = const_cast<Element*>(where.ElementPointer());
 			PutNextToEachOther(elementToDelete->prev, elementToDelete->next);
 
 			delete elementToDelete;
@@ -937,15 +937,15 @@ namespace DataStructures
 		{
 			ConstIterator leftIt = first - 1;
 			PutNextToEachOther(
-				const_cast<Element*>(leftIt.GetElement()), 
-				const_cast<Element*>(last.GetElement()));
+				const_cast<Element*>(leftIt.ElementPointer()), 
+				const_cast<Element*>(last.ElementPointer()));
 
 			ConstIterator it(first);
 			const Element* elementToDelete = nullptr;
 
 			while (it != last)
 			{
-				elementToDelete = it.GetElement();
+				elementToDelete = it.ElementPointer();
 				it++;
 				delete elementToDelete;
 				m_Size--;
@@ -995,7 +995,7 @@ namespace DataStructures
 			{
 				if (*it == value)
 				{
-					elementToDelete = it.GetElement();
+					elementToDelete = it.ElementPointer();
 					it++;
 
 					PutNextToEachOther(elementToDelete->prev, elementToDelete->next);
