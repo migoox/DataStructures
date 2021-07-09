@@ -2,14 +2,14 @@
 #include <vector>
 #include <list>
 #include <array>
+#include <stack>
+#include <queue>
 #include "../DataStructures/List.h"
-#include "../DataStructures/LStack.h"
 #include "../DataStructures/Stack.h"
 #include "../DataStructures/Vector.h"
 #include "../DataStructures/Array.h"
 #include "../Other/Vector2f.h"
 
-using DataStructures::LStack;
 using DataStructures::Stack;
 using DataStructures::List;
 using DataStructures::Vector;
@@ -69,23 +69,6 @@ static void PrintList(const List<Vector2f>& list, const std::string& str = "")
 
 int main()
 {
-	Vector<Vector2f> vec;
-
-	vec.EmplaceBack(5);
-	vec.EmplaceBack(2);
-	vec.EmplaceBack(7);
-	vec.EmplaceBack(1);
-	vec.EmplaceBack(1);
-	vec.EmplaceBack(2);
-
-	PrintVector(vec);
-
-	auto it = vec.begin();
-	auto cit = vec.cbegin();
-
-
-
-	PrintVector(vec);
 
 
 	return 0;

@@ -2,140 +2,215 @@
 
 namespace DataStructures
 {
-	template<class T, const size_t _MaxSize>
+	template <typename T>
+	struct StackElement
+	{
+		T data;
+		StackElement* prev;
+		StackElement* next;
+
+		StackElement()
+			: data(T()), prev(nullptr), next(nullptr)
+		{
+		}
+
+		StackElement(const T& data)
+			: data(data), prev(nullptr), next(nullptr)
+		{
+		}
+
+		StackElement(T&& data)
+			: data(std::move(data)), prev(nullptr), next(nullptr)
+		{
+		}
+		template <typename ...Args>
+		StackElement(Args&&... args)
+			: data(std::forward<Args>(args)...), prev(nullptr), next(nullptr)
+		{
+
+		}
+	};
+
+	template <typename T>
 	class Stack
 	{
+	public:
+		using DataType = T;
+
+		using Element = StackElement<T>;
+
+
 	private:
-		T* m_Data;
+		Element* m_Bottom = nullptr;
+		Element* m_Top = nullptr;
+
 		size_t m_Size;
 
-		void cpy(const Stack& other)
+	private:
+		void PutNextToEachOther(Element* down, Element* up)
 		{
-			for (size_t i = 0; i < m_Size; i++)
-				m_Data[i] = other.m_Data[i];
+			up->prev = down;
+			down->next = up;
 		}
+
 	public:
-		Stack() // default constructor
-		{ 
-			m_Data = new T[_MaxSize];
-			m_Size = 0;
-		} 
-
-		Stack(const Stack& other) // copy constructor
+		
+		Stack()
 		{
-			m_Data = new T[_MaxSize];
-			m_Size = other.m_Size;
 
-			cpy(other);
 		}
 
-		Stack(Stack&& other) noexcept // move constructor
+		Stack(const Stack& other)
 		{
-			m_Data = other.m_Data;
-			m_Size = other.m_Size;
-
-			other.m_Size = 0;
-			other.m_Data = nullptr;
-		}
-
-		~Stack() // destructor
-		{ 
-			delete[] m_Data; 
-		}
-
-		bool push(const T& element) // push to stack
-		{
-			if (isFull())
-				return false;
-
-			m_Data[m_Size] = element;
-			m_Size++;
-
-			return true;
-		}
-
-		bool pop() // pop from stack
-		{
-			if (isEmpty())
-				return false;
-
-			m_Size--;
-
-			return true;
-		}
-
-		T& top() // get acces to the adress of top
-		{
-			return m_Data[m_Size - 1];
-		}
-
-		int size() // get current amount of data stored
-		{
-			return m_Size;
-		}
-
-		int maxSize() // get maximum amount of data that can be stored
-		{
-			return _MaxSize;
-		}
-
-		bool isEmpty() // returns true in case that stack is empty
-		{
-			if (m_Size == 0)
-				return true;
-
-			return false;
-		}
-
-		bool isFull() // returns true in case that stack is full
-		{
-			if (m_Size == _MaxSize)
-				return true;
-
-			return false;
-		}
-
-		Stack& operator=(const Stack& other) 
-		{
-			if (this != &other) 
-			{
-				m_Size = other.m_Size;
-
-				cpy(other);
-			}
-			return *this;
-		}
-
-		Stack& operator=(Stack&& other) noexcept
-		{
-			if (this != &other)
-			{
-				delete[] m_Data; 
-
-				m_Size = other.m_Size;
-				m_Data = other.m_Data;
-
-				other.m_Size = 0;
-				other.m_Data = nullptr;
-			}
-			return *this;
-		}
-
-		friend std::ostream& operator<<(std::ostream& os, const Stack& other)
-		{
-			if (other.m_Size == 0)
-			{
-				os << "STACK IS EMPTY\n";
-				return os;
-			}
-
+			Element* current = other.m_Bottom;
 			for (size_t i = 0; i < other.m_Size; i++)
 			{
-				os << other.m_Data[i] << "\n";
+				Push(current->data);
+				current = current->next;
 			}
-
-
-			return os;
+			m_Size = other.m_Size;
 		}
+
+		Stack(Stack&& other) noexcept 
+		{
+			m_Bottom = other.m_Bottom;
+			m_Top = other.m_Top;
+			m_Size = other.m_Size;
+
+			other.m_Top = nullptr;
+			other.m_Bottom = nullptr;
+			other.m_Size = 0;
+		}
+
+		~Stack()
+		{
+			Clear();
+		}
+
+		void Push(const DataType& newData)
+		{
+			if (m_Size == 0)
+			{
+				m_Top = new Element(newData);
+				m_Bottom = m_Top;
+			}
+			else
+			{
+				Element* newTop = new Element(newData);
+				PutNextToEachOther(m_Top, newTop);
+				m_Top = newTop;
+			}
+			m_Size++;
+		}
+
+		void Push(DataType&& newData)
+		{
+			if (m_Size == 0)
+			{
+				m_Top = new Element(std::move(newData));
+				m_Bottom = m_Top;
+			}
+			else
+			{
+				Element* newTop = new Element(std::move(newData));
+				PutNextToEachOther(m_Top, newTop);
+				m_Top = newTop;
+			}
+			m_Size++;
+		}
+
+		template <typename ...Args>
+		DataType& Emplace(Args&&... args)
+		{
+			if (m_Size == 0)
+			{
+				m_Top = new Element(args...);
+				m_Bottom = m_Top;
+			}
+			else
+			{
+				Element* newTop = new Element(args...);
+				PutNextToEachOther(m_Top, newTop);
+				m_Top = newTop;
+			}
+			m_Size++;
+
+			return m_Top->data;
+		}
+
+		void Pop()
+		{
+			if (m_Size == 1)
+			{
+				delete m_Top;
+
+				m_Top = nullptr;
+				m_Bottom = nullptr;
+			}
+			else
+			{
+				Element* elementToDelete = m_Top;
+				m_Top = m_Top->prev;
+				m_Top->next = nullptr;
+
+				delete elementToDelete;
+			}
+			m_Size--;
+		}
+
+		void Clear()
+		{
+			if (m_Size == 0)
+				return;
+
+			Element* current = m_Bottom;
+			Element* elementToDelete = nullptr;
+			for (size_t i = 0; i < m_Size; i++)
+			{
+				std::cout << current->data.x << std::endl;
+				elementToDelete = current;
+				current = current->next;
+				delete elementToDelete;
+			}
+			m_Size = 0;
+
+			m_Top = nullptr;
+			m_Bottom = nullptr;
+		}
+
+		Stack& operator=(const Stack& other)
+		{
+			Clear();
+			Element* current = m_Bottom;
+			for (size_t i = 0; i < m_Size; i++)
+			{
+				PushBack(current->data);
+				current = current->next;
+			}
+			m_Size = other.m_Size;
+
+			return *this;
+		}
+		
+		Stack& operator=(Stack&& other) noexcept
+		{
+			Clear();
+			m_Bottom = other.m_Bottom;
+			m_Top = other.m_Top;
+			m_Size = other.m_Size;
+
+			other.m_Top = nullptr;
+			other.m_Bottom = nullptr;
+			other.m_Size = 0;
+			
+			return *this;
+		}
+
+		DataType& Top() { return m_Top->data; }
+		const DataType& Top() const { return m_Top->data; }
+
+		bool IsEmpty() const { return m_Size == 0; }
+
+		size_t Size() const { return m_Size; }
 	};
 }
