@@ -3,28 +3,28 @@
 namespace DataStructures
 {
 	template <typename T>
-	struct StackElement
+	struct QueueElement
 	{
 		T data;
-		StackElement* prev;
-		StackElement* next;
+		QueueElement* prev;
+		QueueElement* next;
 
-		StackElement()
+		QueueElement()
 			: data(T()), prev(nullptr), next(nullptr)
 		{
 		}
 
-		StackElement(const T& data)
+		QueueElement(const T& data)
 			: data(data), prev(nullptr), next(nullptr)
 		{
 		}
 
-		StackElement(T&& data)
+		QueueElement(T&& data)
 			: data(std::move(data)), prev(nullptr), next(nullptr)
 		{
 		}
 		template <typename ...Args>
-		StackElement(Args&&... args)
+		QueueElement(Args&&... args)
 			: data(std::forward<Args>(args)...), prev(nullptr), next(nullptr)
 		{
 
@@ -32,37 +32,36 @@ namespace DataStructures
 	};
 
 	template <typename T>
-	class Stack
+	class Queue
 	{
 	public:
 		using DataType = T;
 
-		using Element = StackElement<T>;
-
+		using Element = QueueElement<T>;
 
 	private:
-		Element* m_Bottom = nullptr;
-		Element* m_Top = nullptr;
+		Element* m_Front = nullptr;
+		Element* m_Back = nullptr;
 
 		size_t m_Size;
 
 	private:
-		void PutNextToEachOther(Element* down, Element* up)
+		void PutNextToEachOther(Element* left, Element* right)
 		{
-			up->prev = down;
-			down->next = up;
+			right->prev = left;
+			left->next = right;
 		}
 
 	public:
-		
-		Stack()
+
+		Queue()
 		{
 
 		}
 
-		Stack(const Stack& other)
+		Queue(const Queue& other)
 		{
-			Element* current = other.m_Bottom;
+			Element* current = other.m_Front;
 			for (size_t i = 0; i < other.m_Size; i++)
 			{
 				Push(current->data);
@@ -71,18 +70,18 @@ namespace DataStructures
 			m_Size = other.m_Size;
 		}
 
-		Stack(Stack&& other) noexcept 
+		Queue(Queue&& other) noexcept
 		{
-			m_Bottom = other.m_Bottom;
-			m_Top = other.m_Top;
+			m_Front = other.m_Front;
+			m_Back = other.m_Back;
 			m_Size = other.m_Size;
 
-			other.m_Top = nullptr;
-			other.m_Bottom = nullptr;
+			other.m_Back = nullptr;
+			other.m_Front = nullptr;
 			other.m_Size = 0;
 		}
 
-		~Stack()
+		~Queue()
 		{
 			Clear();
 		}
@@ -91,14 +90,14 @@ namespace DataStructures
 		{
 			if (m_Size == 0)
 			{
-				m_Top = new Element(newData);
-				m_Bottom = m_Top;
+				m_Back = new Element(newData);
+				m_Front = m_Back;
 			}
 			else
 			{
 				Element* newTop = new Element(newData);
-				PutNextToEachOther(m_Top, newTop);
-				m_Top = newTop;
+				PutNextToEachOther(m_Back, newTop);
+				m_Back = newTop;
 			}
 			m_Size++;
 		}
@@ -107,14 +106,14 @@ namespace DataStructures
 		{
 			if (m_Size == 0)
 			{
-				m_Top = new Element(std::move(newData));
-				m_Bottom = m_Top;
+				m_Back = new Element(std::move(newData));
+				m_Front = m_Back;
 			}
 			else
 			{
 				Element* newTop = new Element(std::move(newData));
-				PutNextToEachOther(m_Top, newTop);
-				m_Top = newTop;
+				PutNextToEachOther(m_Back, newTop);
+				m_Back = newTop;
 			}
 			m_Size++;
 		}
@@ -124,34 +123,34 @@ namespace DataStructures
 		{
 			if (m_Size == 0)
 			{
-				m_Top = new Element(args...);
-				m_Bottom = m_Top;
+				m_Back = new Element(args...);
+				m_Front = m_Back;
 			}
 			else
 			{
 				Element* newTop = new Element(args...);
-				PutNextToEachOther(m_Top, newTop);
-				m_Top = newTop;
+				PutNextToEachOther(m_Back, newTop);
+				m_Back = newTop;
 			}
 			m_Size++;
 
-			return m_Top->data;
+			return m_Back->data;
 		}
 
 		void Pop()
 		{
 			if (m_Size == 1)
 			{
-				delete m_Top;
+				delete m_Front;
 
-				m_Top = nullptr;
-				m_Bottom = nullptr;
+				m_Back = nullptr;
+				m_Front = nullptr;
 			}
 			else
 			{
-				Element* elementToDelete = m_Top;
-				m_Top = m_Top->prev;
-				m_Top->next = nullptr;
+				Element* elementToDelete = m_Front;
+				m_Front = m_Front->next;
+				m_Front->prev = nullptr;
 
 				delete elementToDelete;
 			}
@@ -163,7 +162,7 @@ namespace DataStructures
 			if (m_Size == 0)
 				return;
 
-			Element* current = m_Bottom;
+			Element* current = m_Front;
 			Element* elementToDelete = nullptr;
 			for (size_t i = 0; i < m_Size; i++)
 			{
@@ -173,14 +172,14 @@ namespace DataStructures
 			}
 			m_Size = 0;
 
-			m_Top = nullptr;
-			m_Bottom = nullptr;
+			m_Back = nullptr;
+			m_Front = nullptr;
 		}
 
-		Stack& operator=(const Stack& other)
+		Queue& operator=(const Queue& other)
 		{
 			Clear();
-			Element* current = m_Bottom;
+			Element* current = m_Front;
 			for (size_t i = 0; i < m_Size; i++)
 			{
 				PushBack(current->data);
@@ -190,23 +189,26 @@ namespace DataStructures
 
 			return *this;
 		}
-		
-		Stack& operator=(Stack&& other) noexcept
+
+		Queue& operator=(Queue&& other) noexcept
 		{
 			Clear();
-			m_Bottom = other.m_Bottom;
-			m_Top = other.m_Top;
+			m_Front = other.m_Front;
+			m_Back = other.m_Back;
 			m_Size = other.m_Size;
 
-			other.m_Top = nullptr;
-			other.m_Bottom = nullptr;
+			other.m_Back = nullptr;
+			other.m_Front = nullptr;
 			other.m_Size = 0;
-			
+
 			return *this;
 		}
 
-		DataType& Top() { return m_Top->data; }
-		const DataType& Top() const { return m_Top->data; }
+		DataType& Back() { return m_Back->data; }
+		const DataType& Back() const { return m_Back->data; }
+
+		DataType& Front() { return m_Front->data; }
+		const DataType& Front() const { return m_Front->data; }
 
 		bool IsEmpty() const { return m_Size == 0; }
 

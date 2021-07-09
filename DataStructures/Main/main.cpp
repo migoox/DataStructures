@@ -6,11 +6,13 @@
 #include <queue>
 #include "../DataStructures/List.h"
 #include "../DataStructures/Stack.h"
+#include "../DataStructures/Queue.h"
 #include "../DataStructures/Vector.h"
 #include "../DataStructures/Array.h"
 #include "../Other/Vector2f.h"
 
 using DataStructures::Stack;
+using DataStructures::Queue;
 using DataStructures::List;
 using DataStructures::Vector;
 using DataStructures::Array;

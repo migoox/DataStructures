@@ -142,7 +142,7 @@
   <ItemGroup>
     <ClInclude Include="DataStructures\Array.h" />
     <ClInclude Include="DataStructures\List.h" />
-    <ClInclude Include="DataStructures\LStack.h" />
+    <ClInclude Include="DataStructures\Queue.h" />
     <ClInclude Include="DataStructures\Stack.h" />
     <ClInclude Include="DataStructures\Vector.h" />
     <ClInclude Include="Other\Vector2f.h" />
